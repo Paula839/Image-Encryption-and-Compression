@@ -1,30 +1,30 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\",
+  "WorkspaceRootPath": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|d:\\algorithm\\project\\release\\[1] image encryption and compression\\startup code\\[template] imageencryptcompress\\imageencryptcompress\\encryption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|d:\\algorithm\\image encryption and compression\\image encryption and compression\\startup code\\image encryption and compression\\imageencryptcompress\\encryption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\encryption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|d:\\algorithm\\project\\release\\[1] image encryption and compression\\startup code\\[template] imageencryptcompress\\imageencryptcompress\\compression.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\imageencryptcompress\\compression.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\compression.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\imageencryptcompress\\imageoperations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\imageencryptcompress\\imageoperations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\imageoperations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|d:\\algorithm\\project\\release\\[1] image encryption and compression\\startup code\\[template] imageencryptcompress\\imageencryptcompress\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\imageencryptcompress\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{7CA8077F-C27A-400D-B6C9-7737665499AC}|ImageEncryptCompress\\ImageEncryptCompress.csproj|solutionrelative:imageencryptcompress\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -40,11 +40,11 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Compression.cs",
-              "DocumentMoniker": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\Compression.cs",
+              "DocumentMoniker": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\Compression.cs",
               "RelativeDocumentMoniker": "ImageEncryptCompress\\Compression.cs",
-              "ToolTip": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\Compression.cs",
+              "ToolTip": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\Compression.cs",
               "RelativeToolTip": "ImageEncryptCompress\\Compression.cs",
-              "ViewState": "AQIAAAgAAAAAAAAAAAAywCsAAAAQAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-17T13:47:26.188Z",
               "EditorCaption": ""
@@ -53,48 +53,48 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Encryption.cs",
-              "DocumentMoniker": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\Encryption.cs",
+              "DocumentMoniker": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\Encryption.cs",
               "RelativeDocumentMoniker": "ImageEncryptCompress\\Encryption.cs",
-              "ToolTip": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\Encryption.cs",
-              "RelativeToolTip": "ImageEncryptCompress\\Encryption.cs",
-              "ViewState": "AQIAAAcAAAAAAAAAAAAiwBMAAAAAAAAA",
+              "ToolTip": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\Encryption.cs*",
+              "RelativeToolTip": "ImageEncryptCompress\\Encryption.cs*",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-17T13:46:48.677Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\Program.cs",
+              "DocumentMoniker": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\Program.cs",
               "RelativeDocumentMoniker": "ImageEncryptCompress\\Program.cs",
-              "ToolTip": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\Program.cs",
+              "ToolTip": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\Program.cs",
               "RelativeToolTip": "ImageEncryptCompress\\Program.cs",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABMAAAABAAAA",
+              "ViewState": "AQIAAAIAAAAAAAAAAAAhwBAAAAAfAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-08T02:02:56.471Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "MainForm.cs",
-              "DocumentMoniker": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\MainForm.cs",
+              "DocumentMoniker": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\MainForm.cs",
               "RelativeDocumentMoniker": "ImageEncryptCompress\\MainForm.cs",
-              "ToolTip": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\MainForm.cs",
+              "ToolTip": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\MainForm.cs",
               "RelativeToolTip": "ImageEncryptCompress\\MainForm.cs",
-              "ViewState": "AQIAAAwAAAAAAAAAAAAUwBsAAAA6AAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAA6AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-08T02:02:56.584Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "ImageOperations.cs",
-              "DocumentMoniker": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\ImageOperations.cs",
+              "DocumentMoniker": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\ImageOperations.cs",
               "RelativeDocumentMoniker": "ImageEncryptCompress\\ImageOperations.cs",
-              "ToolTip": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\ImageOperations.cs",
+              "ToolTip": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\ImageOperations.cs",
               "RelativeToolTip": "ImageEncryptCompress\\ImageOperations.cs",
               "ViewState": "AQIAAAkAAAAAAAAAAAAAAA8AAAAaAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -103,11 +103,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "MainForm.cs [Design]",
-              "DocumentMoniker": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\MainForm.cs",
+              "DocumentMoniker": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\MainForm.cs",
               "RelativeDocumentMoniker": "ImageEncryptCompress\\MainForm.cs",
-              "ToolTip": "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\Startup Code\\[TEMPLATE] ImageEncryptCompress\\ImageEncryptCompress\\MainForm.cs [Design]",
+              "ToolTip": "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\MainForm.cs [Design]",
               "RelativeToolTip": "ImageEncryptCompress\\MainForm.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-08T02:02:56.587Z",

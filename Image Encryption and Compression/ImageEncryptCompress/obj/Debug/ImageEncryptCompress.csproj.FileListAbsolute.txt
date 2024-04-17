@@ -18,3 +18,13 @@ D:\Algorithm\Project\RELEASE\[1] Image Encryption and Compression\Startup Code\[
 D:\Algorithm\Project\RELEASE\[1] Image Encryption and Compression\Startup Code\[TEMPLATE] ImageEncryptCompress\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.csproj.CoreCompileInputs.cache
 D:\Algorithm\Project\RELEASE\[1] Image Encryption and Compression\Startup Code\[TEMPLATE] ImageEncryptCompress\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.exe
 D:\Algorithm\Project\RELEASE\[1] Image Encryption and Compression\Startup Code\[TEMPLATE] ImageEncryptCompress\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.pdb
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\bin\Debug\ImageEncryptCompress.exe.config
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\bin\Debug\ImageEncryptCompress.exe
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\bin\Debug\ImageEncryptCompress.pdb
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.csproj.AssemblyReference.cache
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.MainForm.resources
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.Properties.Resources.resources
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.csproj.GenerateResource.cache
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.csproj.CoreCompileInputs.cache
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.exe
+D:\Algorithm\Image Encryption and Compression\Image Encryption and Compression\Startup Code\Image Encryption and Compression\ImageEncryptCompress\obj\Debug\ImageEncryptCompress.pdb
