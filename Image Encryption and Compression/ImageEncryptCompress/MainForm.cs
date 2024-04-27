@@ -33,11 +33,13 @@ namespace ImageEncryptCompress
 
         private void btnGaussSmooth_Click(object sender, EventArgs e)
         {
+            
             double sigma = double.Parse(txtGaussSigma.Text);
             int maskSize = (int)nudMaskSize.Value ;
-            Compression.save(ImageMatrix);
-            ImageMatrix = ImageOperations.GaussianFilter1D(ImageMatrix, maskSize, sigma);
-            ImageOperations.DisplayImage(ImageMatrix, pictureBox2);
+            //Compression.save(ImageMatrix);
+            RGBPixel[,] Encrypted = Encryption.Encode(ImageMatrix, "0010000000101010101010100010101", 2);
+            Encrypted = ImageOperations.GaussianFilter1D(ImageMatrix, maskSize, sigma);
+            ImageOperations.DisplayImage(Encrypted, pictureBox2);
         }
 
         private void txtWidth_TextChanged(object sender, EventArgs e)
