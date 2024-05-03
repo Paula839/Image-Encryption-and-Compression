@@ -5,68 +5,43 @@ using System.Text;
 
 public class Encryption
 {
-    public static string h = "";
-    public static int hh;
-    public Encryption(string init_seed)
-    {
-        h = init_seed;
-    }
+    public static int current_seed;
+    public static string current_password;
     public static int LFSR(int tapnum, int initial_seed, int n)
     {
+
+        //get last digit of the initial seed 
         int last = ((initial_seed & (1 << (n - 1)))) >> (n - 1);
-        //Console.WriteLine(last);
-
+        
+        //get tap digit of the initial seed 
         int tap = ((initial_seed & (1 << (tapnum)))) >> (tapnum);
-        //Console.WriteLine(tap);
 
-        int shifted = initial_seed << 1;
+        //shift it
+        int shifted = initial_seed << 1; 
 
+        //xor last with tap
         int xorResult = last ^ tap;
-        // Console.WriteLine(xorResult);
 
-        int removelast = last * (1 << n);
+        
+        int removelast = last << n;
 
         int res_seed = shifted + xorResult - removelast;
 
-        //int res_seed = shifted | xorResult;
-
-        //string str_seed = Convert.ToString(res_seed, 2).PadLeft(n, '0');
-
-        //Console.WriteLine(res_seed);
-        hh = res_seed;
+        current_seed = res_seed;
         //return res_seed;
         return xorResult;
     }
 
     public static int LFSRk(int tapnum, int initial_seed, int k, int n)
     {
-        //int n = initial_seed.Length;
-        //Console.WriteLine(n);
-        //int seedInt = Convert.ToInt32(initial_seed, 2);
-        //Console.WriteLine(seedInt);
-        //hh = seedInt;
-        //string retpass = "";
-        //string strseed = "";
         int result = 0;
         for (int i = 0; i < k; i++)
         {
-            //Console.WriteLine(seedInt);
-            int x = LFSR(tapnum, hh, n);
-            //Console.WriteLine(x);
+            int x = LFSR(tapnum, current_seed, n);
             result = (result << 1) | x;
-            // int newseed = LFSR(tapnum, seedInt, n);
-            // //ret += xorResult;
-            // seedInt = newseed;
-            // //Console.WriteLine(newseed);
-            // strseed = Convert.ToString(newseed, 2).PadLeft(n, '0');
-            // //Console.WriteLine(strseed);
-            // retpass += strseed[n - 1];
 
         }
 
-        // h = strseed;
-        // // Console.WriteLine(retpass);
-        // return retpass;
         return result;
     }
 
@@ -80,35 +55,26 @@ public class Encryption
         //Console.WriteLine(n);
         int seedInt = Convert.ToInt32(initial_seed, 2);
         //Console.WriteLine(seedInt);
-        hh = seedInt;
+        current_seed = seedInt;
 
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
 
-
-
                 //RED
-                int redcolor = LFSRk(tap, hh, 8, n);
+                int redcolor = LFSRk(tap, current_seed, 8, n);
                 //int forred = Convert.ToInt32(redcolor, 2);
                 byte forredByte = (byte)redcolor;
-
                 //GREEN
-                int greencolor = LFSRk(tap, hh, 8, n);
+                int greencolor = LFSRk(tap, current_seed, 8, n);
                 //int forgreen = Convert.ToInt32(greencolor, 2);
                 byte forgreenByte = (byte)greencolor;
 
                 //BLUE
-                int bluecolor = LFSRk(tap, hh, 8, n);
+                int bluecolor = LFSRk(tap, current_seed, 8, n);
                 //int forblue = Convert.ToInt32(bluecolor, 2);
                 byte forblueByte = (byte)bluecolor;
-
-
-                //Console.WriteLine(forred);
-                //Console.WriteLine(forgreen);
-                //Console.WriteLine(forblue);
-
 
                 image[i, j].red = (byte)(image[i, j].red ^ forredByte);
                 image[i, j].green = (byte)(image[i, j].green ^ forgreenByte);
@@ -120,16 +86,48 @@ public class Encryption
 
 
     //Bonus1
-    public static void StrongPassword()
+    public static string StrongPassword(int tapnum, string initial_password, int n)
     {
 
+        //get last digit of the initial seed 
+        return "0";
     }
+
+    public static string StrongPasswordK(int tapnum, string initial_password, int k, int n)
+    {
+        //string result = 0;
+        for (int i = 0; i < k; i++)
+        {
+            string x = StrongPassword(tapnum, current_password, n);
+            //result = (result << 1) | x;
+
+        }
+
+
+        return "0";
+    }
+
+    public static RGBPixelD[,] EncodeStrongPassword(RGBPixelD[,] image, string initial_password, int tap)
+    {
+
+
+        return image;
+    }
+
 
     //Bonus2
-    public static void BreakPassword()
+    //0 1 
+    public static RGBPixel[,] BreakPassword(RGBPixel[,] image, int n)
     {
 
+        Breaking(n);
+        return image;
     }
 
+    public static void Breaking(int n)
+    {
+        //if 
+        //encode
+    }
 
 }

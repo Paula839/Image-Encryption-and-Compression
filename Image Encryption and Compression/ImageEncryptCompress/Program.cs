@@ -19,7 +19,6 @@ namespace ImageEncryptCompress
         [STAThread]
         static void Main()
         {
-            Console.WriteLine("HE#LLO");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

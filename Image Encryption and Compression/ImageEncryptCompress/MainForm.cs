@@ -16,6 +16,7 @@ namespace ImageEncryptCompress
         }
 
         RGBPixel[,] ImageMatrix;
+        RGBPixelD[,] ImageMatrixStrongPassword;
 
         private void btnOpen_Click(object sender, EventArgs e)
         {
@@ -37,7 +38,7 @@ namespace ImageEncryptCompress
             double sigma = double.Parse(txtGaussSigma.Text);
             int maskSize = (int)nudMaskSize.Value ;
             //Compression.save(ImageMatrix);
-            RGBPixel[,] Encrypted = Encryption.Encode(ImageMatrix, "0010000000101010101010100010101", 2);
+            RGBPixel[,] Encrypted = Encryption.Encode(ImageMatrix, "10001111", 6);
             Encrypted = ImageOperations.GaussianFilter1D(ImageMatrix, maskSize, sigma);
             ImageOperations.DisplayImage(Encrypted, pictureBox2);
         }
