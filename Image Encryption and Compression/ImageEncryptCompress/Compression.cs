@@ -7,19 +7,102 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+public class Root
+{
+    public byte color;
+    public int frequency;
+    public Root left;
+    public Root right;
+
+    public int CompareTo(Root other)
+    {
+        return frequency.CompareTo(other.frequency);
+    }
+}
+
+public class PriorityQueue<T> where T : Root
+{
+    private List<T> heap;
+
+    public int Count { get { return heap.Count; } }
+
+    public PriorityQueue()
+    {
+        heap = new List<T>();
+    }
+
+    public void Insert(T item)
+    {
+        heap.Add(item);
+        int i = heap.Count - 1;
+
+        while (i > 0 && heap[i].CompareTo(heap[Parent(i)]) < 0)
+        {
+            Swap(i, Parent(i));
+            i = Parent(i);
+        }
+    }
+
+    public T ExtractMin()
+    {
+        if (heap.Count == 0)
+            throw new InvalidOperationException("Priority queue is empty.");
+
+        T min = heap[0];
+        heap[0] = heap[heap.Count - 1];
+        heap.RemoveAt(heap.Count - 1);
+
+        MinHeapify(0);
+
+        return min;
+    }
+
+    private void MinHeapify(int i)
+    {
+        int left = LeftChild(i);
+        int right = RightChild(i);
+        int smallest = i;
+
+        if (left < heap.Count && heap[left].CompareTo(heap[smallest]) < 0)
+            smallest = left;
+
+        if (right < heap.Count && heap[right].CompareTo(heap[smallest]) < 0)
+            smallest = right;
+
+        if (smallest != i)
+        {
+            Swap(i, smallest);
+            MinHeapify(smallest);
+        }
+    }
+
+    private int Parent(int i)
+    {
+        return (i - 1) / 2;
+    }
+
+    private int LeftChild(int i)
+    {
+        return 2 * i + 1;
+    }
+
+    private int RightChild(int i)
+    {
+        return 2 * i + 2;
+    }
+
+    private void Swap(int i, int j)
+    {
+        T temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
+    }
+}
+
 public static class Compression
 {
 
     /* Priority_Queue<>*/
-
-    public class Root
-    {
-        public byte color;
-        public int frequency;
-        public Root left;
-        public Root right;
-    }
-
 
     public static Dictionary<byte, int> redDictionary;
     public static Dictionary<byte, int> greenDictionary;
@@ -28,10 +111,11 @@ public static class Compression
     
     public struct Heap
     {
-        public SortedDictionary<int, LinkedList<Root>> red;
-        public SortedDictionary<int, LinkedList<Root>> green;
-        public SortedDictionary<int, LinkedList<Root>> blue;
 
+
+        public PriorityQueue<Root> red;
+        public PriorityQueue<Root> green;
+        public PriorityQueue<Root> blue;
 
     }
     public static Root[] HuffmanTree(RGBPixel[,] image)
@@ -65,9 +149,9 @@ public static class Compression
         }
 
         Heap heap = new Heap();
-        heap.red = new SortedDictionary<int, LinkedList<Root>>();
-        heap.green = new SortedDictionary<int, LinkedList<Root>>();
-        heap.blue = new SortedDictionary<int, LinkedList<Root>>();
+        heap.red = new PriorityQueue<Root>();
+        heap.green = new PriorityQueue<Root>();
+        heap.blue = new PriorityQueue<Root>();
 
         foreach (KeyValuePair<byte, int> f in redDictionary)
         {
@@ -75,11 +159,7 @@ public static class Compression
             z.color = f.Key;
             z.frequency = f.Value;
             z.left = z.right = null;
-            if (!heap.red.ContainsKey(z.frequency))
-            {
-                heap.red.Add(z.frequency, new LinkedList<Root>());
-            }
-            heap.red[z.frequency].AddFirst(z);
+            heap.red.Insert(z);
         }
 
         foreach (KeyValuePair<byte, int> f in greenDictionary)
@@ -88,11 +168,7 @@ public static class Compression
             z.color = f.Key;
             z.frequency = f.Value;
             z.left = z.right = null;
-            if (!heap.green.ContainsKey(z.frequency))
-            {
-                heap.green.Add(z.frequency, new LinkedList<Root>());
-            }
-            heap.green[z.frequency].AddFirst(z);
+            heap.green.Insert(z);
         }
 
         foreach (KeyValuePair<byte, int> f in blueDictionary)
@@ -101,97 +177,46 @@ public static class Compression
             z.color = f.Key;
             z.frequency = f.Value;
             z.left = z.right = null;
-            if (!heap.blue.ContainsKey(z.frequency))
-            {
-                heap.blue.Add(z.frequency, new LinkedList<Root>());
-            }
-            heap.blue[z.frequency].AddFirst(z);
+            heap.blue.Insert(z);
         }
 
-        while (heap.red.Count > 1 || heap.red.First().Value.Count > 1)
+        while (heap.red.Count > 1)
         {
 
             Root z = new Root();
 
-            z.left = heap.red.First().Value.First();
-            heap.red.First().Value.RemoveFirst();
-            if (heap.red.First().Value.Count == 0)
-            {
-                heap.red.Remove(heap.red.First().Key);
-            }
-            z.right = heap.red.First().Value.First();
-            heap.red.First().Value.RemoveFirst();
-            if (heap.red.First().Value.Count == 0)
-            {
-                heap.red.Remove(heap.red.First().Key);
-            }
+            z.left = heap.red.ExtractMin();
+            z.right = heap.red.ExtractMin();
             z.frequency = z.left.frequency + z.right.frequency;
-
-            if (!heap.red.ContainsKey(z.frequency))
-            {
-                heap.red.Add(z.frequency, new LinkedList<Root>());
-            }
-            heap.red[z.frequency].AddFirst(z);
-
+            heap.red.Insert(z);
         }
 
-        while (heap.green.Count > 1 || heap.green.First().Value.Count > 1)
+        while (heap.green.Count > 1)
         {
 
             Root z = new Root();
 
-            z.left = heap.green.First().Value.First();
-            heap.green.First().Value.RemoveFirst();
-            if (heap.green.First().Value.Count == 0)
-            {
-                heap.green.Remove(heap.green.First().Key);
-            }
-            z.right = heap.green.First().Value.First();
-            heap.green.First().Value.RemoveFirst();
-            if (heap.green.First().Value.Count == 0)
-            {
-                heap.green.Remove(heap.green.First().Key);
-            }
+            z.left = heap.green.ExtractMin();
+            z.right = heap.green.ExtractMin();
             z.frequency = z.left.frequency + z.right.frequency;
-
-            if (!heap.green.ContainsKey(z.frequency))
-            {
-                heap.green.Add(z.frequency, new LinkedList<Root>());
-            }
-            heap.green[z.frequency].AddFirst(z);
-
+            heap.green.Insert(z);
         }
-
-        while (heap.blue.Count > 1 || heap.blue.First().Value.Count > 1)
+        
+        while (heap.blue.Count > 1)
         {
 
             Root z = new Root();
 
-            z.left = heap.blue.First().Value.First();
-            heap.blue.First().Value.RemoveFirst();
-            if (heap.blue.First().Value.Count == 0)
-            {
-                heap.blue.Remove(heap.blue.First().Key);
-            }
-            z.right = heap.blue.First().Value.First();
-            heap.blue.First().Value.RemoveFirst();
-            if (heap.blue.First().Value.Count == 0)
-            {
-                heap.blue.Remove(heap.blue.First().Key);
-            }
+            z.left = heap.red.ExtractMin();
+            z.right = heap.red.ExtractMin();
             z.frequency = z.left.frequency + z.right.frequency;
-
-            if (!heap.blue.ContainsKey(z.frequency))
-            {
-                heap.blue.Add(z.frequency, new LinkedList<Root>());
-            }
-            heap.blue[z.frequency].AddFirst(z);
-
+            heap.blue.Insert(z);
         }
+
         Root[] root = new Root[3];
-        root[0] = heap.red.First().Value.First();
-        root[1] = heap.green.First().Value.First();
-        root[2] = heap.blue.First().Value.First();
+        root[0] = heap.red.ExtractMin();
+        root[1] = heap.green.ExtractMin();
+        root[2] = heap.blue.ExtractMin();
         return root;
     }
 
@@ -347,132 +372,178 @@ public static class Compression
         rgbCode[2] = code;
         code = "";
         StringBuilder[] rgb = CompressFile(image);
+
+
+
+        //TASK
+
+        //BINARY FILE
+        /*
+         *
+          1.	Initial seed value and tap position 
+          2.	Huffman Tree
+          3.	Compressed image
+
+            001001011 //Initial Seed
+            00101     //Tap Position
+            0101010101001010001010101010010101010101001011  //Red Huffman Tree
+            0101010101010100101010101001010101010010101010  //Green Huffman Tree
+            1010010101010101010101011101010100101010101011  //Blue Huffman Tree
+            01001   //Height
+            10101   //W
+
+         *
+         *
+         *
+         *
+         *
+         */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //END TASK
         //int sizer = r.Length;
         //int sizeo = red.Length;
         //Console.WriteLine(r);
-        string filePath = "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\output.txt"; // Path to the file to save
-                                                                                                                                                                                                 //string textToSave = ascii; // Text to save in the file
-        string ascii;
+        //string filePath = "D:\\Algorithm\\Image Encryption and Compression\\Image Encryption and Compression\\Startup Code\\Image Encryption and Compression\\ImageEncryptCompress\\anabinary.bin"; // Path to the file to save
+        //                                                                                                                                                                                         //string textToSave = ascii; // Text to save in the file
+        //string ascii;
 
-        // Create a StreamWriter to write to the file
-        using (StreamWriter writer = new StreamWriter(filePath))
-        {
-            // Write the text to the file
-            //writer.WriteLine(textToSave);
-            //Console.WriteLine(/*"size of text before commpression is :" + rgbCode[0].Length + "bytes" + " size after is :" + rgbCode[0].Length / (sizeof(byte)) + "bytes"*/);
-            ascii = BinaryToAscii(rgb[0].ToString());
-            writer.WriteLine(ascii);
-            writer.WriteLine();
+        //// Create a StreamWriter to write to the file
+        //using (StreamWriter writer = new StreamWriter(filePath))
+        //{
+        //    // Write the text to the file
+        //    //writer.WriteLine(textToSave);
+        //    //Console.WriteLine(/*"size of text before commpression is :" + rgbCode[0].Length + "bytes" + " size after is :" + rgbCode[0].Length / (sizeof(byte)) + "bytes"*/);
+        //    ascii = BinaryToAscii(rgb[0].ToString());
+        //    writer.WriteLine(ascii);
+        //    writer.WriteLine();
 
-            writer.WriteLine("--R--");
-            writer.WriteLine("Color - Frequency - Huffman Representation - Total Bits");
-            int redSum = 0;
-            foreach (KeyValuePair<byte, string> colorValues in RedHuffmanCode)
-            {
-                redSum += redDictionary[colorValues.Key] * colorValues.Value.Length;
-                writer.WriteLine(colorValues.Key + " - " + redDictionary[colorValues.Key] + " - " +
-                    colorValues.Value + " - " + redDictionary[colorValues.Key] * colorValues.Value.Length);
-            }
-            writer.Write("Total = ");
-            writer.Write(redSum);    
-            writer.Write(" // ");
-            writer.WriteLine("bits");
-            writer.WriteLine();
+        //    writer.WriteLine("--R--");
+        //    writer.WriteLine("Color - Frequency - Huffman Representation - Total Bits");
+        //    int redSum = 0;
+        //    foreach (KeyValuePair<byte, string> colorValues in RedHuffmanCode)
+        //    {
+        //        redSum += redDictionary[colorValues.Key] * colorValues.Value.Length;
+        //        writer.WriteLine(colorValues.Key + " - " + redDictionary[colorValues.Key] + " - " +
+        //            colorValues.Value + " - " + redDictionary[colorValues.Key] * colorValues.Value.Length);
+        //    }
+        //    writer.Write("Total = ");
+        //    writer.Write(redSum);    
+        //    writer.Write(" // ");
+        //    writer.WriteLine("bits");
+        //    writer.WriteLine();
 
-            ascii = BinaryToAscii(rgb[1].ToString());
-            writer.WriteLine(ascii);
-            writer.WriteLine();
+        //    ascii = BinaryToAscii(rgb[1].ToString());
+        //    writer.WriteLine(ascii);
+        //    writer.WriteLine();
 
-            writer.WriteLine("--G--");
-            writer.WriteLine("Color - Frequency - Huffman Representation - Total Bits");
-            int greenSum = 0;
-            foreach (KeyValuePair<byte, string> colorValues in GreenHuffmanCode)
-            {
-                greenSum += greenDictionary[colorValues.Key] * colorValues.Value.Length;
-                writer.WriteLine(colorValues.Key + " - " + greenDictionary[colorValues.Key] + " - " +
-                    colorValues.Value + " - " + greenDictionary[colorValues.Key] * colorValues.Value.Length);
-            }
-            writer.Write("Total = ");
-            writer.Write(greenSum);
-            writer.Write(" // ");
-            writer.WriteLine("bits");
-            writer.WriteLine();
+        //    writer.WriteLine("--G--");
+        //    writer.WriteLine("Color - Frequency - Huffman Representation - Total Bits");
+        //    int greenSum = 0;
+        //    foreach (KeyValuePair<byte, string> colorValues in GreenHuffmanCode)
+        //    {
+        //        greenSum += greenDictionary[colorValues.Key] * colorValues.Value.Length;
+        //        writer.WriteLine(colorValues.Key + " - " + greenDictionary[colorValues.Key] + " - " +
+        //            colorValues.Value + " - " + greenDictionary[colorValues.Key] * colorValues.Value.Length);
+        //    }
+        //    writer.Write("Total = ");
+        //    writer.Write(greenSum);
+        //    writer.Write(" // ");
+        //    writer.WriteLine("bits");
+        //    writer.WriteLine();
 
-            ascii = BinaryToAscii(rgb[2].ToString());
-            writer.WriteLine(ascii);
-            writer.WriteLine();
+        //    ascii = BinaryToAscii(rgb[2].ToString());
+        //    writer.WriteLine(ascii);
+        //    writer.WriteLine();
 
-            writer.WriteLine("--B--");
-            writer.WriteLine("Color - Frequency - Huffman Representation - Total Bits");
-            int blueSum = 0;
-            foreach (KeyValuePair<byte, string> colorValues in BlueHuffmanCode)
-            {
-                blueSum += blueDictionary[colorValues.Key] * colorValues.Value.Length;
-                writer.WriteLine(colorValues.Key + " - " + blueDictionary[colorValues.Key] + " - " +
-                    colorValues.Value + " - " + blueDictionary[colorValues.Key] * colorValues.Value.Length);
-            }
-            writer.Write("Total = ");
-            writer.Write(blueSum);
-            writer.Write(" // ");
-            writer.WriteLine("bits");
+        //    writer.WriteLine("--B--");
+        //    writer.WriteLine("Color - Frequency - Huffman Representation - Total Bits");
+        //    int blueSum = 0;
+        //    foreach (KeyValuePair<byte, string> colorValues in BlueHuffmanCode)
+        //    {
+        //        blueSum += blueDictionary[colorValues.Key] * colorValues.Value.Length;
+        //        writer.WriteLine(colorValues.Key + " - " + blueDictionary[colorValues.Key] + " - " +
+        //            colorValues.Value + " - " + blueDictionary[colorValues.Key] * colorValues.Value.Length);
+        //    }
+        //    writer.Write("Total = ");
+        //    writer.Write(blueSum);
+        //    writer.Write(" // ");
+        //    writer.WriteLine("bits");
 
-            writer.WriteLine("**Compression Output**");
-            writer.WriteLine((redSum + greenSum + blueSum) / 8.0);
+        //    writer.WriteLine("**Compression Output**");
+        //    writer.WriteLine((redSum + greenSum + blueSum) / 8.0);
 
-            //writer.WriteLine("size of text before commpression is :" + rgbCode[0].Length + "bytes" + " size after is :" + rgbCode[0].Length / (sizeof(byte)) + "bytes");
+        //    //writer.WriteLine("size of text before commpression is :" + rgbCode[0].Length + "bytes" + " size after is :" + rgbCode[0].Length / (sizeof(byte)) + "bytes");
 
-            //writer.WriteLine(".............RED Tree............");
-            //Dictionary<byte, string> codes = CompressionImage.getCodes();
-            //foreach (var kvp in codes)
-            //{
-            //    writer.WriteLine($"{kvp.Key}:{kvp.Value}");
-            //}
-            //writer.WriteLine(".............RED size............");
-            //writer.WriteLine("size:" + sizer);
-        }
+        //    //writer.WriteLine(".............RED Tree............");
+        //    //Dictionary<byte, string> codes = CompressionImage.getCodes();
+        //    //foreach (var kvp in codes)
+        //    //{
+        //    //    writer.WriteLine($"{kvp.Key}:{kvp.Value}");
+        //    //}
+        //    //writer.WriteLine(".............RED size............");
+        //    //writer.WriteLine("size:" + sizer);
+        //}
         //Console.WriteLine(ascii);
         //string binary = AsciiToBinary(ascii).Substring(0, sizer);
         // Console.WriteLine(binary);
-        Console.WriteLine("....................................................");
         //Console.WriteLine(r == binary);
 
         //Console.WriteLine(CompressionImage.Decompress(binary, root, root));
     }
-    static string BinaryToAscii(string binaryString)
-    {
-        // Ensure the binary string length is divisible by 8
-        int paddingLength = 8 - (binaryString.Length % 8);
-        if (paddingLength != 8)
-        {
-            binaryString = binaryString.PadRight(binaryString.Length + paddingLength, '0');
-        }
+    //static string BinaryToAscii(string binaryString)
+    //{
+    //    // Ensure the binary string length is divisible by 8
+    //    int paddingLength = 8 - (binaryString.Length % 8);
+    //    if (paddingLength != 8)
+    //    {
+    //        binaryString = binaryString.PadRight(binaryString.Length + paddingLength, '0');
+    //    }
 
-        // Parse the binary string in groups of 8 bits and convert to ASCII
-        StringBuilder asciiStringBuilder = new StringBuilder();
-        for (int i = 0; i < binaryString.Length; i += 8)
-        {
-            string binaryByte = binaryString.Substring(i, 8);
-            byte asciiByte = Convert.ToByte(binaryByte, 2);
-            asciiStringBuilder.Append((char)asciiByte);
-        }
+    //    // Parse the binary string in groups of 8 bits and convert to ASCII
+    //    StringBuilder asciiStringBuilder = new StringBuilder();
+    //    for (int i = 0; i < binaryString.Length; i += 8)
+    //    {
+    //        string binaryByte = binaryString.Substring(i, 8);
+    //        byte asciiByte = Convert.ToByte(binaryByte, 2);
+    //        asciiStringBuilder.Append((char)asciiByte);
+    //    }
 
-        return asciiStringBuilder.ToString();
-    }
-    static string AsciiToBinary(string asciiString)
-    {
-        StringBuilder binaryStringBuilder = new StringBuilder();
+    //    return asciiStringBuilder.ToString();
+    //}
+    //static string AsciiToBinary(string asciiString)
+    //{
+    //    StringBuilder binaryStringBuilder = new StringBuilder();
 
-        foreach (char c in asciiString)
-        {
-            // Convert character to binary representation and pad with leading zeros if necessary
-            string binaryChar = Convert.ToString(c, 2).PadLeft(8, '0');
+    //    foreach (char c in asciiString)
+    //    {
+    //        // Convert character to binary representation and pad with leading zeros if necessary
+    //        string binaryChar = Convert.ToString(c, 2).PadLeft(8, '0');
 
-            // Append binary representation of character to the binary string
-            binaryStringBuilder.Append(binaryChar);
-        }
+    //        // Append binary representation of character to the binary string
+    //        binaryStringBuilder.Append(binaryChar);
+    //    }
 
-        return binaryStringBuilder.ToString();
-    }
+    //    return binaryStringBuilder.ToString();
+    //}
 
     //load()
 

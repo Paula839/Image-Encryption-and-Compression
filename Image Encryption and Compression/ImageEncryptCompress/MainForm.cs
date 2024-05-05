@@ -34,12 +34,14 @@ namespace ImageEncryptCompress
 
         private void btnGaussSmooth_Click(object sender, EventArgs e)
         {
-            
+
             double sigma = double.Parse(txtGaussSigma.Text);
-            int maskSize = (int)nudMaskSize.Value ;
+            int maskSize = (int)nudMaskSize.Value;
             //Compression.save(ImageMatrix);
-            RGBPixel[,] Encrypted = Encryption.Encode(ImageMatrix, "10001111", 6);
-            Encrypted = ImageOperations.GaussianFilter1D(ImageMatrix, maskSize, sigma);
+            //RGBPixel[,] Encrypted = Encryption.Encode(ImageMatrix, "1111", 2);
+            RGBPixel[,] Encrypted = Encryption.EncodeString(ImageMatrix, "10001111", 6);
+            //RGBPixel[,] Encrypted = Encryption.testingEncode(ImageMatrix, "010101010101010101010101010", 14);
+            Encrypted = ImageOperations.GaussianFilter1D(Encrypted, maskSize, sigma);
             ImageOperations.DisplayImage(Encrypted, pictureBox2);
         }
 

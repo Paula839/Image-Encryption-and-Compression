@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Compression.cs" />
     <Compile Include="Encryption.cs" />
+    <Compile Include="LinkedListTapPointer.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
