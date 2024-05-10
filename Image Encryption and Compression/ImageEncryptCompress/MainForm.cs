@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -17,7 +18,7 @@ namespace ImageEncryptCompress
 
         RGBPixel[,] ImageMatrix;
         RGBPixelD[,] ImageMatrixStrongPassword;
-
+        string filePath;
         private void btnOpen_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -25,9 +26,25 @@ namespace ImageEncryptCompress
             {
                 //Open the browsed image and display it
                 string OpenedFilePath = openFileDialog1.FileName;
-                ImageMatrix = ImageOperations.OpenImage(OpenedFilePath);
+                string fileExtension = Path.GetExtension(OpenedFilePath).ToLower();
+                if (fileExtension == ".bmp")
+                {
+                    ImageMatrix = ImageOperations.OpenImage(OpenedFilePath);
+                }
+
+                else if(fileExtension == ".bin")
+                {
+                    ImageMatrix = Compression.load(OpenedFilePath);
+                }
+                
+                else
+                {
+
+                }
+
                 ImageOperations.DisplayImage(ImageMatrix, pictureBox1);
             }
+
             txtWidth.Text = ImageOperations.GetWidth(ImageMatrix).ToString();
             txtHeight.Text = ImageOperations.GetHeight(ImageMatrix).ToString();
         }
@@ -37,10 +54,18 @@ namespace ImageEncryptCompress
 
             double sigma = double.Parse(txtGaussSigma.Text);
             int maskSize = (int)nudMaskSize.Value;
-            //Compression.save(ImageMatrix);
-            //RGBPixel[,] Encrypted = Encryption.Encode(ImageMatrix, "1111", 2);
-            RGBPixel[,] Encrypted = Encryption.EncodeString(ImageMatrix, "10001111", 6);
-            //RGBPixel[,] Encrypted = Encryption.testingEncode(ImageMatrix, "010101010101010101010101010", 14);
+            string seed = "";
+            int tap = 0;
+            try
+            {
+                 seed = seedBox.Text;
+                 tap = Convert.ToUInt16(tapBox.Text);
+            }
+            catch {
+
+            }
+
+            RGBPixel[,] Encrypted = Encryption.EncodeString(ImageMatrix, seed, (byte)tap);
             Encrypted = ImageOperations.GaussianFilter1D(Encrypted, maskSize, sigma);
             ImageOperations.DisplayImage(Encrypted, pictureBox2);
         }
@@ -52,7 +77,57 @@ namespace ImageEncryptCompress
 
         private void button1_Click(object sender, EventArgs e)
         {
+            double sigma = double.Parse(txtGaussSigma.Text);
+            int maskSize = (int)nudMaskSize.Value;
+            int size = 0;
+            try
+            {
+                size = Convert.ToInt32(sizeBox.Text);
+            }
+            catch { 
+                
+            }
+            RGBPixel[,] Breaking = Encryption.BreakPassword(ImageMatrix, size);
+            Breaking = ImageOperations.GaussianFilter1D(Breaking, maskSize, sigma);
+            ImageOperations.DisplayImage(Breaking, pictureBox2);
+        }
 
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            double sigma = double.Parse(txtGaussSigma.Text);
+            int maskSize = (int)nudMaskSize.Value;
+            Compression.save(ImageMatrix);
+            ImageOperations.DisplayImage(ImageMatrix, pictureBox2);
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            double sigma = double.Parse(txtGaussSigma.Text);
+            int maskSize = (int)nudMaskSize.Value;
+
+            Compression.save(ImageMatrix);
+            ImageOperations.DisplayImage(ImageMatrix, pictureBox2);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+            Compression.load(filePath);
         }
     }
 }

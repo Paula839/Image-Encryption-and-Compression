@@ -1,10 +1,15 @@
 ﻿using ImageEncryptCompress;
+using Lucene.Net.Index;
+using Lucene.Net.Search;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using static Lucene.Net.Store.Lock;
 
 
 public class Root
@@ -41,6 +46,7 @@ public class PriorityQueue<T> where T : Root
             Swap(i, Parent(i));
             i = Parent(i);
         }
+       
     }
 
     public T ExtractMin()
@@ -108,7 +114,7 @@ public static class Compression
     public static Dictionary<byte, int> greenDictionary;
     public static Dictionary<byte, int> blueDictionary;
 
-    
+
     public struct Heap
     {
 
@@ -201,14 +207,14 @@ public static class Compression
             z.frequency = z.left.frequency + z.right.frequency;
             heap.green.Insert(z);
         }
-        
+
         while (heap.blue.Count > 1)
         {
 
             Root z = new Root();
 
-            z.left = heap.red.ExtractMin();
-            z.right = heap.red.ExtractMin();
+            z.left = heap.blue.ExtractMin();
+            z.right = heap.blue.ExtractMin();
             z.frequency = z.left.frequency + z.right.frequency;
             heap.blue.Insert(z);
         }
@@ -223,7 +229,7 @@ public static class Compression
     static Dictionary<byte, string> RedHuffmanCode;
     static Dictionary<byte, string> GreenHuffmanCode;
     static Dictionary<byte, string> BlueHuffmanCode;
-    static string code;
+    static StringBuilder[] code;
     public static void CompressRed(Root root)
     {
         //Base Case avoiding StackOverFlow / Inifinte Recursion
@@ -233,15 +239,15 @@ public static class Compression
         }
 
         //false -> 0 / true -> 1
-        code += '0';
+        code[0].Append('0');
         CompressRed(root.left); //0 string + 0, 0
-        code = code.Remove(code.Length - 1);
-        code += '1';
+        code[0].Remove(code[0].Length - 1, 1);
+        code[0].Append('1');
         CompressRed(root.right); //1
-        code = code.Remove(code.Length - 1);
+        code[0].Remove(code[0].Length - 1, 1);
 
         if (root.left == null && root.right == null)
-            RedHuffmanCode[root.color] = code;
+            RedHuffmanCode[root.color] = code[0].ToString();
     }
 
     public static void CompressGreen(Root root)
@@ -253,15 +259,15 @@ public static class Compression
         }
 
         //false -> 0 / true -> 1
-        code += '0';
+        code[1].Append('0');
         CompressGreen(root.left); //0 string + 0, 0
-        code = code.Remove(code.Length - 1);
-        code += '1';
+        code[1].Remove(code[1].Length - 1, 1);
+        code[1].Append('1');
         CompressGreen(root.right); //1
-        code = code.Remove(code.Length - 1);
+        code[1].Remove(code[1].Length - 1, 1);
 
         if (root.left == null && root.right == null)
-            GreenHuffmanCode[root.color] = code;
+            GreenHuffmanCode[root.color] = code[1].ToString();
     }
 
     public static void CompressBlue(Root root)
@@ -273,78 +279,397 @@ public static class Compression
         }
 
         //false -> 0 / true -> 1
-        code += '0';
+        code[2].Append('0');
         CompressBlue(root.left); //0 string + 0, 0
-        code = code.Remove(code.Length - 1);
-        code += '1';
+        code[2].Remove(code[2].Length - 1, 1);
+        code[2].Append('1');
         CompressBlue(root.right); //1
-        code = code.Remove(code.Length - 1);
+        code[2].Remove(code[2].Length - 1, 1);
 
         if (root.left == null && root.right == null)
-            BlueHuffmanCode[root.color] = code;
+            BlueHuffmanCode[root.color] = code[2].ToString();
     }
     static bool found = false;
-    static string decompressed = "";
+    static RGBPixel[,] decompressed;
     static int index = 0;
-    static string Decompress(string huffmanCode, Root root, Root node)
+    static int n, m;
+    static void DecompressRed(string huffmanCode, Root root)
     {
-        if (node.left == null && node.right == null)
+        Root currentNode = root;
+        int treeLength = huffmanCode.Length;
+        int row = 0, col = 0;
+        for (int i = 0; i < treeLength; i++)
         {
-            string ret = "";
-            ret += node.color;
-            found = true;
-            return ret;
-        }
-
-        while (index < huffmanCode.Length)
-        {
-
-            if (node == root)
+            if (huffmanCode[i] == '0')
             {
-                found = false;
-            }
-
-            if (found)
-            {
-                return "";
-            }
-
-            if (huffmanCode[index] == '0')
-            {
-                index++;
-                string ret = Decompress(huffmanCode, root, node.left);
-                decompressed += ret;
+                if (currentNode.left == null) //doesnt exists
+                {
+                    decompressed[row, col].red = currentNode.color;
+                    col++;
+                    row += col / m;
+                    col %= m;
+                    currentNode = root;
+                }
+                currentNode = currentNode.left;
             }
             else
             {
-                index++;
-                string ret = Decompress(huffmanCode, root, node.right);
-                decompressed += ret;
+                if (currentNode.right == null)
+                {
+                    decompressed[row, col].red = currentNode.color;
+                    col++;
+                    row += col / m;
+                    col %= m;
+                    currentNode = root;
+                }
+                currentNode = currentNode.right;
             }
         }
-        if (node == root)
-            return decompressed;
-        else return "";
+
+
     }
 
-    static StringBuilder[] CompressFile(RGBPixel[,] image)
+    static void DecompressGreen(string huffmanCode, Root root)
     {
 
+        Root currentNode = root;
+        int treeLength = huffmanCode.Length;
+        int row = 0, col = 0;
+        for (int i = 0; i < treeLength && row < n; i++)
+        {
+            if (huffmanCode[i] == '0')
+            {
+                if (currentNode.left == null) //doesnt exists
+                {
+                    decompressed[row, col].green = currentNode.color;
+                    col++;
+                    row += col / m;
+                    col %= m;
+                    currentNode = root;
+                }
+                currentNode = currentNode.left;
+            }
+            else
+            {
+                if (currentNode.right == null)
+                {
+                    decompressed[row, col].green = currentNode.color;
+                    col++;
+                    row += col / m;
+                    col %= m;
+                    currentNode = root;
+                }
+                currentNode = currentNode.right;
+            }
+        }
 
+
+    }
+    static void DecompressBlue(string huffmanCode, Root root)
+    {
+        StringBuilder ret = new StringBuilder();
+        Root currentNode = root;
+        int treeLength = huffmanCode.Length;
+        int row = 0, col = 0;
+        for (int i = 0; i < treeLength && row < n; i++)
+        {
+            if (huffmanCode[i] == '0')
+            {
+                if (currentNode.left == null) //doesnt exists
+                {
+                    decompressed[row, col].blue = currentNode.color;
+                    col++;
+                    row += col / m;
+                    col %= m;
+                    currentNode = root;
+                }
+                currentNode = currentNode.left;
+            }
+            else
+            {
+                if (currentNode.right == null)
+                {
+                    decompressed[row, col].blue = currentNode.color;
+                    col++;
+                    row += col / m;
+                    col %= m;
+                    currentNode = root;
+                }
+                currentNode = currentNode.right;
+            }
+        }
+
+
+    }
+
+
+
+
+
+
+    private static StringBuilder[] CompressFile(RGBPixel[,] image)
+    {
         StringBuilder[] Scompressed = new StringBuilder[3];
         Scompressed[0] = new StringBuilder();
         Scompressed[1] = new StringBuilder();
         Scompressed[2] = new StringBuilder();
 
+        // Populate Huffman codes dictionaries
+        CompressRed(HuffmanTree(image)[0]);
+        CompressGreen(HuffmanTree(image)[1]);
+        CompressBlue(HuffmanTree(image)[2]);
 
-        foreach (RGBPixel c in image)
+        // Access Huffman codes dictionaries and compress image
+        foreach (RGBPixel pixel in image)
         {
+            if (RedHuffmanCode.ContainsKey(pixel.red))
+            {
+                Scompressed[0].Append(RedHuffmanCode[pixel.red]);
+            }
 
-            Scompressed[0].Append(RedHuffmanCode[c.red]);
-            Scompressed[1].Append(GreenHuffmanCode[c.green]);
-            Scompressed[2].Append(BlueHuffmanCode[c.blue]);
+            if (GreenHuffmanCode.ContainsKey(pixel.green))
+            {
+                Scompressed[1].Append(GreenHuffmanCode[pixel.green]);
+            }
+
+            if (BlueHuffmanCode.ContainsKey(pixel.blue))
+            {
+                Scompressed[2].Append(BlueHuffmanCode[pixel.blue]);
+            }
         }
+
         return Scompressed;
+    }
+
+    public static byte[] EncodeToBytes(StringBuilder colorChannel)
+    {
+        List<byte> storingBytes = new List<byte>();
+        int i = 0;
+        string tmp = colorChannel.ToString();
+        for (; i + 8 < colorChannel.Length; i += 8)
+        {
+            storingBytes.Add(Convert.ToByte(tmp.Substring(i, 8), 2));
+        }
+        if (i < colorChannel.Length)
+        {
+            storingBytes.Add(Convert.ToByte(tmp.Substring(i, (colorChannel.Length) - i), 2));
+        }
+        return storingBytes.ToArray();
+    }
+
+    static List<byte> Redpadding;
+    static List<byte> Greenpadding;
+    static List<byte> Bluepadding;
+
+    public static List<byte> RedEncodeTreeToBytes(Dictionary<byte, string> huffman)
+    {
+        List<byte> storingBytes = new List<byte>();
+        foreach(KeyValuePair<byte, string> h in huffman)
+        {
+            Redpadding.Add((byte)(8 - h.Value.Length % 8));
+            storingBytes.Add(Convert.ToByte(h.Value.PadLeft(8, '0'), 2));
+        }
+
+        return storingBytes;
+    }
+    public static List<byte> GreenEncodeTreeToBytes(Dictionary<byte, string> huffman)
+    {
+        List<byte> storingBytes = new List<byte>();
+        foreach(KeyValuePair<byte, string> h in huffman)
+        {
+            Greenpadding.Add((byte)(8 - h.Value.Length % 8));
+            storingBytes.Add(Convert.ToByte(h.Value.PadLeft(8, '0'), 2));
+        }
+
+        return storingBytes;
+    }
+    public static List<byte> BlueEncodeTreeToBytes(Dictionary<byte, string> huffman)
+    {
+        List<byte> storingBytes = new List<byte>();
+        foreach(KeyValuePair<byte, string> h in huffman)
+        {
+            Bluepadding.Add((byte)(8 - h.Value.Length % 8));
+            storingBytes.Add(Convert.ToByte(h.Value.PadLeft(8, '0'), 2));
+        }
+
+        return storingBytes;
+    }
+
+    private static byte[] ConvertToBytesInt(StringBuilder huffmanCode)
+    {
+        int padding = 8 - huffmanCode.Length % 8;
+        if (padding != 8)
+            huffmanCode.Append('0', padding);
+
+        string binaryString = huffmanCode.ToString();
+        List<byte> bytes = new List<byte>();
+        for (int i = 0; i < binaryString.Length; i ++)
+        {
+            bytes.Add(Convert.ToByte(binaryString[i]));
+        }
+        return bytes.ToArray();
+    }
+
+
+    public static Root[] ReconstructTree()
+
+    {//0101011000110010
+        Root[] root = new Root[3];
+        root[0] = new Root();
+        foreach (KeyValuePair<byte, string> kvp in RedHuffmanCode)
+        {
+            Root currentNode = root[0];
+            string code = kvp.Value;
+            for (int i = 0; i < code.Length; i++)
+            {
+                if (code[i] == '0')
+                {
+                    if (currentNode.left == null) //doesnt exists
+                    {
+                        currentNode.left = new Root();
+                    }
+                    currentNode = currentNode.left;
+                }
+                else if (code[i] == '1')
+                {
+                    if (currentNode.right == null)
+                    {
+                        currentNode.right = new Root();
+                    }
+                    currentNode = currentNode.right;
+                }
+            }
+
+            currentNode.color = kvp.Key;
+        }
+
+        root[1] = new Root();
+        foreach (KeyValuePair<byte, string> kvp in GreenHuffmanCode)
+        {
+            Root currentNode = root[1];
+            string code = kvp.Value;
+            for (int i = 0; i < code.Length; i++)
+            {
+                if (code[i] == '0')
+                {
+                    if (currentNode.left == null) //doesnt exists
+                    {
+                        currentNode.left = new Root();
+                    }
+                    currentNode = currentNode.left;
+                }
+                else if (code[i] == '1')
+                {
+                    if (currentNode.right == null)
+                    {
+                        currentNode.right = new Root();
+                    }
+                    currentNode = currentNode.right;
+                }
+            }
+
+            currentNode.color = kvp.Key;
+        }
+
+        root[2] = new Root();
+        foreach (KeyValuePair<byte, string> kvp in BlueHuffmanCode)
+        {
+            Root currentNode = root[2];
+            string code = kvp.Value;
+            for (int i = 0; i < code.Length; i++)
+            {
+                if (code[i] == '0')
+                {
+                    if (currentNode.left == null) //doesnt exists
+                    {
+                        currentNode.left = new Root();
+                    }
+                    currentNode = currentNode.left;
+                }
+                else if (code[i] == '1')
+                {
+                    if (currentNode.right == null)
+                    {
+                        currentNode.right = new Root();
+                    }
+                    currentNode = currentNode.right;
+                }
+            }
+
+            currentNode.color = kvp.Key;
+        }
+
+
+        return root;
+    }
+
+    public static string ConvertToBinary(int number)
+    {
+        if (number == 0)
+            return "0"; // Special case for zero
+
+        string binary = ""; // Initialize an empty string to store the binary representation
+
+        while (number > 0)
+        {
+            // Get the least significant bit of the number
+            int bit = number % 2;
+
+            // Prepend the bit to the binary string
+            binary = bit + binary;
+
+            // Shift the number right by 1 bit
+            number >>= 1;
+        }
+        return binary;
+    }
+
+    private static string ConvertToBinaryString(byte bytes)
+    {
+        StringBuilder binaryString = new StringBuilder();
+
+        // Convert byte to binary string representation with leading zeros
+        binaryString.Append(Convert.ToString(bytes, 2).PadLeft(8, '0'));
+        return binaryString.ToString();
+    }
+
+
+    private static string ConvertToBinaryStringPading(byte bytes)
+    {
+        StringBuilder binaryString = new StringBuilder();
+
+        // Convert byte to binary string representation with leading zeros
+        binaryString.Append(Convert.ToString(bytes, 2).PadRight(8, '0'));
+        return binaryString.ToString();
+    }
+
+    static string[] SplitString(string str, int chunkSize)
+    {
+        int numChunks = str.Length / chunkSize;
+        string[] chunks = new string[numChunks];
+        for (int i = 0; i < numChunks; i++)
+        {
+            chunks[i] = str.Substring(i * chunkSize, chunkSize);
+        }
+        return chunks;
+    }
+
+    static StringBuilder[] s;
+
+    private static byte[] ConvertToBytes(StringBuilder huffmanCode)
+    {
+        int padding = 8 - huffmanCode.Length % 8;
+        if (padding != 8)
+            huffmanCode.Append('0', padding);
+
+        string binaryString = huffmanCode.ToString();
+        List<byte> bytes = new List<byte>();
+        for (int i = 0; i < binaryString.Length; i += 8)
+        {
+            string byteString = binaryString.Substring(i, 8);
+            bytes.Add(Convert.ToByte(byteString, 2));
+        }
+        return bytes.ToArray();
     }
 
     public static void save(RGBPixel[,] image)
@@ -358,20 +683,11 @@ public static class Compression
         BlueHuffmanCode = new Dictionary<byte, string>();
         Root[] root = HuffmanTree(image);
 
-        string[] rgbCode = new string[3];
-        rgbCode[0] = "";
-        rgbCode[1] = "";
-        rgbCode[2] = "";
-        CompressRed(root[0]);
-        rgbCode[0] = code;
-        code = "";
-        CompressGreen(root[1]);
-        rgbCode[1] = code;
-        code = "";
-        CompressBlue(root[2]);
-        rgbCode[2] = code;
-        code = "";
-        StringBuilder[] rgb = CompressFile(image);
+        code = new StringBuilder[3];
+        for (int i = 0; i < 3; i++) code[i] = new StringBuilder();
+        //CompressRed(root[0]);
+        //CompressGreen(root[1]);
+        //CompressBlue(root[2]);
 
 
 
@@ -400,19 +716,132 @@ public static class Compression
          */
 
 
+         s = CompressFile(image);
+
+        // Combine the Huffman codes into a single string for each color channel
+        StringBuilder redHuffmanCode = s[0];
+        StringBuilder greenHuffmanCode = s[1];
+        StringBuilder blueHuffmanCode = s[2];
+
+        // Convert Huffman codes from strings to bytes
+        byte[] redBytes = ConvertToBytes(redHuffmanCode);
+        byte[] greenBytes = ConvertToBytes(greenHuffmanCode);
+        byte[] blueBytes = ConvertToBytes(blueHuffmanCode);
+
+        // Write the Huffman codes to the binary file
+        StringBuilder writing = new StringBuilder();
+        byte[] writingBytes = new byte[3];
+
+        {        string filePath = "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\comp.bin";
+      
+            using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+            {
+                writer.Write(image.GetLength(0));
+                writer.Write(image.GetLength(1));
+                
+                writer.Write(RedHuffmanCode.Count);
+                foreach(KeyValuePair<byte, string> pair in RedHuffmanCode)
+                {
+                    writer.Write(pair.Key);
+                    writer.Write(pair.Value);
+                }
+
+                writer.Write(redBytes.Length);
+                writer.Write(redBytes);
+
+                writer.Write(GreenHuffmanCode.Count);
+                foreach (KeyValuePair<byte, string> pair in GreenHuffmanCode)
+                {
+                    writer.Write(pair.Key);
+                    writer.Write(pair.Value);
+                }
 
 
+                writer.Write(greenBytes.Length);
+                writer.Write(greenBytes);
+
+                writer.Write(BlueHuffmanCode.Count);
+                foreach (KeyValuePair<byte, string> pair in BlueHuffmanCode)
+                {
+                    writer.Write(pair.Key);
+                    writer.Write(pair.Value);
+                }
 
 
+                writer.Write(blueBytes.Length);
+                writer.Write(blueBytes);
 
+            }
+        }
 
+        //string filePath = "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\comp.txt";
+        //string[] chunks;
 
+        //using (StreamWriter writer = new StreamWriter(filePath))
+        //{
+        //    // Write the string to the file
+        //    foreach (KeyValuePair<byte, string> kvp in RedHuffmanCode)
+        //    {
+        //        writer.Write($"{(kvp.Key)} ");
+        //        chunks = SplitString((kvp.Value), 64);
+        //        foreach (string chunk in chunks)
+        //        {
+        //            UInt64 decimalNumber = Convert.ToUInt64(chunk, 2);
+        //            writer.Write(decimalNumber);
+        //        }
+        //        writer.WriteLine();
+        //    }
 
+        //    chunks = SplitString(rgb[0].ToString(), 64);
+        //    foreach (string chunk in chunks)
+        //    {
+        //        UInt64 decimalNumber = Convert.ToUInt64(chunk, 2);
+        //        writer.Write(decimalNumber);
+        //    }
+        //    writer.WriteLine();
 
+        //    foreach (KeyValuePair<byte, string> kvp in GreenHuffmanCode)
+        //    {
+        //        writer.Write($"{(kvp.Key)} ");
+        //        chunks = SplitString((kvp.Value), 64);
+        //        foreach (string chunk in chunks)
+        //        {
+        //            UInt64 decimalNumber = Convert.ToUInt64(chunk, 2);
+        //            writer.Write(decimalNumber);
+        //        }
+        //        writer.WriteLine();
+        //    }
+        //    chunks = SplitString(rgb[1].ToString(), 64);
+        //    foreach (string chunk in chunks)
+        //    {
+        //        UInt64 decimalNumber = Convert.ToUInt64(chunk, 2);
+        //        writer.Write(decimalNumber);
+        //    }
+        //    writer.WriteLine();
 
+        //    foreach (KeyValuePair<byte, string> kvp in BlueHuffmanCode)
+        //    {
+        //        writer.Write($"{(kvp.Key)} ");
+        //        chunks = SplitString((kvp.Value), 64);
+        //        foreach (string chunk in chunks)
+        //        {
+        //            UInt64 decimalNumber = Convert.ToUInt64(chunk, 2);
+        //            writer.Write(decimalNumber);
+        //        }
+        //        writer.WriteLine();
+        //    }
 
+        //    chunks = SplitString(rgb[2].ToString(), 64);
+        //    foreach (string chunk in chunks)
+        //    {
+        //        UInt64 decimalNumber = Convert.ToUInt64(chunk, 2);
+        //        writer.Write(decimalNumber);
+        //    }
+        //    writer.WriteLine();
 
+        //    writer.Write($"{(image.GetLength(0))} {(image.GetLength(1))}");
 
+        //}
 
 
 
@@ -509,43 +938,129 @@ public static class Compression
 
         //Console.WriteLine(CompressionImage.Decompress(binary, root, root));
     }
-    //static string BinaryToAscii(string binaryString)
-    //{
-    //    // Ensure the binary string length is divisible by 8
-    //    int paddingLength = 8 - (binaryString.Length % 8);
-    //    if (paddingLength != 8)
-    //    {
-    //        binaryString = binaryString.PadRight(binaryString.Length + paddingLength, '0');
-    //    }
+        //static string BinaryToAscii(string binaryString)
+        //{
+        //    // Ensure the binary string length is divisible by 8
+        //    int paddingLength = 8 - (binaryString.Length % 8);
+        //    if (paddingLength != 8)
+        //    {
+        //        binaryString = binaryString.PadRight(binaryString.Length + paddingLength, '0');
+        //    }
 
-    //    // Parse the binary string in groups of 8 bits and convert to ASCII
-    //    StringBuilder asciiStringBuilder = new StringBuilder();
-    //    for (int i = 0; i < binaryString.Length; i += 8)
-    //    {
-    //        string binaryByte = binaryString.Substring(i, 8);
-    //        byte asciiByte = Convert.ToByte(binaryByte, 2);
-    //        asciiStringBuilder.Append((char)asciiByte);
-    //    }
+        //    // Parse the binary string in groups of 8 bits and convert to ASCII
+        //    StringBuilder asciiStringBuilder = new StringBuilder();
+        //    for (int i = 0; i < binaryString.Length; i += 8)
+        //    {
+        //        string binaryByte = binaryString.Substring(i, 8);
+        //        byte asciiByte = Convert.ToByte(binaryByte, 2);
+        //        asciiStringBuilder.Append((char)asciiByte);
+        //    }
 
-    //    return asciiStringBuilder.ToString();
-    //}
-    //static string AsciiToBinary(string asciiString)
-    //{
-    //    StringBuilder binaryStringBuilder = new StringBuilder();
+        //    return asciiStringBuilder.ToString();
+        //}
+        //static string AsciiToBinary(string asciiString)
+        //{
+        //    StringBuilder binaryStringBuilder = new StringBuilder();
 
-    //    foreach (char c in asciiString)
-    //    {
-    //        // Convert character to binary representation and pad with leading zeros if necessary
-    //        string binaryChar = Convert.ToString(c, 2).PadLeft(8, '0');
+        //    foreach (char c in asciiString)
+        //    {
+        //        // Convert character to binary representation and pad with leading zeros if necessary
+        //        string binaryChar = Convert.ToString(c, 2).PadLeft(8, '0');
 
-    //        // Append binary representation of character to the binary string
-    //        binaryStringBuilder.Append(binaryChar);
-    //    }
+        //        // Append binary representation of character to the binary string
+        //        binaryStringBuilder.Append(binaryChar);
+        //    }
 
-    //    return binaryStringBuilder.ToString();
-    //}
+        //    return binaryStringBuilder.ToString();
+        //}
+    
+    public static RGBPixel[,] load(string filePath)
+    {
+        RedHuffmanCode = new Dictionary<byte, string>();
+        GreenHuffmanCode = new Dictionary<byte, string>();
+        BlueHuffmanCode = new Dictionary<byte, string>();
+       
+        n = 0;
+        m = 0;
 
-    //load()
+        string[] rgb = new string[3];
+        int length = 0;
+        byte[] redaya, greenaya, bluhaya;
+        StringBuilder stringHelper = new StringBuilder();
+        using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+        {
+            n = reader.ReadInt32();
+            m = reader.ReadInt32();
 
+            length = reader.ReadInt32();
+            for (int i = 0; i < length; i++)
+            {
+                byte key = reader.ReadByte();
+                string value = reader.ReadString();
+                RedHuffmanCode.Add(key, value);
+            }
+
+            length = reader.ReadInt32();
+            redaya = reader.ReadBytes(length);
+
+
+            length = reader.ReadInt32();
+            for (int i = 0; i < length; i++)
+            {
+                byte key = reader.ReadByte();
+                string value = reader.ReadString();
+                GreenHuffmanCode.Add(key, value);
+            }
+
+            length = reader.ReadInt32();
+            greenaya = reader.ReadBytes(length);
+
+
+            length = reader.ReadInt32();
+            for (int i = 0; i < length; i++)
+            {
+                byte key = reader.ReadByte();
+                string value = reader.ReadString();
+                BlueHuffmanCode.Add(key, value);
+            }
+
+            length = reader.ReadInt32();
+            bluhaya = reader.ReadBytes(length);
+
+
+        }
+
+
+        decompressed = new RGBPixel[n, m];
+   
+        Root[] root = ReconstructTree();
+
+        foreach(byte b in redaya)
+        {
+            stringHelper.Append(ConvertToBinaryString(b));
+        }
+        rgb[0] = stringHelper.ToString();
+
+        stringHelper = new StringBuilder();
+
+        foreach(byte b in greenaya)
+        {
+            stringHelper.Append(ConvertToBinaryString(b));
+        }
+
+        rgb[1] = stringHelper.ToString();
+        stringHelper = new StringBuilder();
+
+        foreach(byte b in bluhaya)
+        {
+            stringHelper.Append(ConvertToBinaryString(b));
+        }
+        rgb[2] = stringHelper.ToString();
+
+        DecompressRed(rgb[0], root[0]);
+        DecompressGreen(rgb[1], root[1]);
+        DecompressBlue(rgb[2], root[2]);
+        return decompressed;
+
+    }
 }
-

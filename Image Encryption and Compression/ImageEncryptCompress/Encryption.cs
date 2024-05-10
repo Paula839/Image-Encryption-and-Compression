@@ -6,7 +6,7 @@ using System.Text;
 public class Encryption
 {
     public static StringBuilder current_seedString;
-    public static int currentPosition = -1;
+    public static int currentPosition;
     public static int currentTapPosition;
     public static int n;
 
@@ -16,7 +16,7 @@ public class Encryption
         for (int i = 0; i < k; i++)
         {
             int x = current_seedString[(++currentPosition) % n] ^= current_seedString[(++currentTapPosition) % n];
-            result = (byte)((result << 1) | x);
+            result = (byte)((result << 1) | x); //result * 2 + x
 
         }
 
@@ -33,7 +33,8 @@ public class Encryption
          *get the initial_seed and convert each character to binary and store it in current_seedString(StringBuilder)
          *after this instead of n = initial_seed.Length use n = current_seed.Length
          */
-       
+
+
         //comment these three lines
         current_seedString = new StringBuilder(initial_seed);
         n = initial_seed.Length; 
@@ -41,7 +42,7 @@ public class Encryption
 
         currentPosition = 0 - 1;
         currentTapPosition = n - tap - 1 - 1;
-
+        RGBPixel[,] pixlaya = (RGBPixel[,])image.Clone(); 
         byte redcolor = 0;
         byte greencolor = 0;
         byte bluecolor = 0;
@@ -59,17 +60,26 @@ public class Encryption
                 byte forgreenByte = greencolor;
                 byte forblueByte = bluecolor;
 
-                image[i, j].red = (byte)(image[i, j].red ^ forredByte);
-                image[i, j].green = (byte)(image[i, j].green ^ forgreenByte);
-                image[i, j].blue = (byte)(image[i, j].blue ^ forblueByte);
+                pixlaya[i, j].red = (byte)(pixlaya[i, j].red ^ forredByte);
+                pixlaya[i, j].green = (byte)(pixlaya[i, j].green ^ forgreenByte);
+                pixlaya[i, j].blue = (byte)(pixlaya[i, j].blue ^ forblueByte);
             }
         }
-        return image;
+        return pixlaya;
     }
 
     //Bonus2 : Break Password
     //0 1 
-    public static RGBPixel[,] BreakPassword(RGBPixel[,] image, int n)
+    static StringBuilder randomSeed;
+    static RGBPixel[,] testingImage;
+    static int num;
+
+    static double bestSum;
+    static string bestSeed;
+    static byte bestTap;
+    static RGBPixel[,] bestImage;
+    static int elsumElly3ayzo;
+    public static RGBPixel[,] BreakPassword(RGBPixel[,] image, int nn)
     {
 
         /*
@@ -79,15 +89,69 @@ public class Encryption
          get the seed and tap position of the highest sum variable that calculates sum+= abs(frequency - 128) O(N) => O(N^3)
 
         */
-
-        Breaking(n);
-        return image;
+        randomSeed = new StringBuilder();
+        testingImage = image;
+        num = nn;
+        bestSum = double.MinValue;
+        Breaking(image, 0);
+        return bestImage;
     }
 
-    public static void Breaking(int n)
+
+    public static double CalculateColorDeviation(RGBPixel pixel)
     {
-        //if 
-        //encode
+        double deviation = (Math.Pow(pixel.red - 128, 2) +
+                                     Math.Pow(pixel.green - 128, 2) +
+                                     Math.Pow(pixel.blue - 128, 2));
+        return deviation;
+    }
+
+    public static double CalculateImageDeviation(RGBPixel[,] pixels)
+    {
+        int count = 0;
+        double totalDeviation = 0;
+
+        for (int y = 0; y < pixels.GetLength(0); y++)
+        {
+            for (int x = 0; x < pixels.GetLength(1); x++)
+            {
+                double deviation = CalculateColorDeviation(pixels[y, x]);
+                totalDeviation += deviation;
+                count++;
+            }
+        }
+
+        double averageDeviation = totalDeviation / count;
+        return Math.Sqrt(averageDeviation);
+    }
+
+    public static void Breaking(RGBPixel[,] image, int pos)
+    {
+
+        if(pos == num)
+        {
+            for (byte i = 0; i < num; i++)
+            {
+                testingImage = (RGBPixel[,])image.Clone();
+                RGBPixel[,] elImage = EncodeString(testingImage, randomSeed.ToString(), i);
+                double deviation = CalculateImageDeviation(elImage);
+                if (deviation > bestSum)
+                {
+                    bestSum = deviation;
+                    bestSeed = randomSeed.ToString();
+                    bestTap = i;
+                    bestImage = elImage;
+                }
+            }
+            return;
+        }
+        randomSeed.Append('0');
+        Breaking(image, pos + 1);
+        randomSeed.Remove(randomSeed.Length - 1, 1);
+        randomSeed.Append('1');
+        Breaking(image, pos + 1);
+        randomSeed.Remove(randomSeed.Length - 1, 1);
+
     }
 
 
