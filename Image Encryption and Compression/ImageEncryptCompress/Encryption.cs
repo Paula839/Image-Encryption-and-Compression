@@ -23,7 +23,7 @@ public class Encryption
         return result;
     }
 
-    public static RGBPixel[,] EncodeString(RGBPixel[,] image, string initial_seed, byte tap)
+    public static RGBPixel[,] EncodeString(RGBPixel[,] image, string initial_seed, int tap)
     {
         int width = image.GetLength(0);
         int height = image.GetLength(1);
