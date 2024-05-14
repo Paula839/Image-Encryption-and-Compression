@@ -18,7 +18,7 @@ namespace ImageEncryptCompress
             InitializeComponent();
         }
 
-        RGBPixel[,] ImageMatrix;
+        public RGBPixel[,] ImageMatrix;
         RGBPixel[,] SmoothedImageMatrix;
 
         string filePath;
@@ -63,7 +63,7 @@ namespace ImageEncryptCompress
 
             }
 
-            SmoothedImageMatrix = Encryption.EncodeString(ImageMatrix, seed, tap);
+            SmoothedImageMatrix = Encryption.Encrypt(ImageMatrix, seed, tap);
             ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
         }
 
@@ -148,7 +148,7 @@ namespace ImageEncryptCompress
 
             }
 
-            SmoothedImageMatrix = Encryption.EncodeString(ImageMatrix, seed, tap);
+            SmoothedImageMatrix = Encryption.Encrypt(ImageMatrix, seed, tap);
             ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
             Compression.save(SmoothedImageMatrix);
             stopwatch.Stop();
@@ -182,24 +182,16 @@ namespace ImageEncryptCompress
                 {
                     stopwatch.Start();
                     ImageMatrix = Compression.load(OpenedFilePath);
+
                 }
                 else
                 {
                 }
 
-                string seed = "";
-                int tap = 0;
-                try
-                {
-                    seed = seedBox.Text;
-                    tap = Convert.ToUInt16(tapBox.Text);
-                }
-                catch
-                {
+                string seed = Compression.initialaSeed;
+                int tap = Compression.tapPosition;
 
-                }
-
-                SmoothedImageMatrix = Encryption.EncodeString(ImageMatrix, seed, (byte)tap);
+                SmoothedImageMatrix = Encryption.Encrypt(ImageMatrix, seed, (byte)tap);
 
                 ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(ImageMatrix, maskSize, sigma), pictureBox1);
                 ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
@@ -248,7 +240,7 @@ namespace ImageEncryptCompress
 
             }
 
-            SmoothedImageMatrix = Encryption.EncodeString(SmoothedImageMatrix, seed, tap);
+            SmoothedImageMatrix = Encryption.Encrypt(SmoothedImageMatrix, seed, tap);
             ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
         }
     }

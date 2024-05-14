@@ -23,7 +23,9 @@ public class Root
     {
         return frequency.CompareTo(other.frequency);
     }
+    
 }
+
 
 public class PriorityQueue<T> where T : Root
 {
@@ -109,6 +111,8 @@ public static class Compression
 {
 
     /* Priority_Queue<>*/
+    public static string initialaSeed;
+    public static int tapPosition;
 
     public static Dictionary<byte, int> redDictionary;
     public static Dictionary<byte, int> greenDictionary;
@@ -296,7 +300,7 @@ public static class Compression
         Root currentNode = root;
         int treeLength = huffmanCode.Length;
         int row = 0, col = 0;
-        for (int i = 0; i < treeLength && row < n; i++)
+        for (int i = 0; i < treeLength ; i++)
         {
             if (huffmanCode[i] == '0')
             {
@@ -333,7 +337,7 @@ public static class Compression
         Root currentNode = root;
         int treeLength = huffmanCode.Length;
         int row = 0, col = 0;
-        for (int i = 0; i < treeLength && row < n; i++)
+        for (int i = 0; i < treeLength ; i++)
         {
             if (huffmanCode[i] == '0')
             {
@@ -369,7 +373,7 @@ public static class Compression
         Root currentNode = root;
         int treeLength = huffmanCode.Length;
         int row = 0, col = 0;
-        for (int i = 0; i < treeLength && row < n; i++)
+        for (int i = 0; i < treeLength; i++)
         {
             if (huffmanCode[i] == '0')
             {
@@ -551,7 +555,7 @@ public static class Compression
 
             currentNode.color = kvp.Key;
         }
-
+        
 
         return root;
     }
@@ -609,6 +613,13 @@ public static class Compression
         code = new StringBuilder[3];
         for (int i = 0; i < 3; i++) code[i] = new StringBuilder();
         s = CompressFile(image);
+        StringBuilder stringBuilder;
+
+        stringBuilder = new StringBuilder(Encryption.initialaSeed);
+        byte seedPadding = 0;
+
+        byte[] seedBytes = ConvertToBytes(stringBuilder);
+        seedPadding = (byte)((8 - padding) % 8);
 
         byte redPadding = 0, greenPadding = 0, bluePadding = 0;
 
@@ -619,11 +630,16 @@ public static class Compression
         byte[] blueBytes = ConvertToBytes(s[2]);
         bluePadding = (byte)((8 - padding) % 8);
 
-        StringBuilder stringBuilder = new StringBuilder();
 
         string filePath = "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\comp.bin";
         using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
         {
+
+            writer.Write(seedBytes.Length);
+            writer.Write(seedPadding);
+            writer.Write(seedBytes);
+            writer.Write(Encryption.tapPosition);
+
             writer.Write(image.GetLength(0));
             writer.Write(image.GetLength(1));
 
@@ -690,11 +706,17 @@ public static class Compression
 
         string[] rgb = new string[3];
         int length = 0;
-        byte[] redbytes, greenbytes, bluebytes;
+        byte[] seedBytes, redBytes, greenBytes, blueBytes;
         StringBuilder stringBuilder = new StringBuilder();
-        byte redPadding = 0, greenPadding = 0, bluePadding = 0;
+        byte seedPadding = 0, redPadding = 0, greenPadding = 0, bluePadding = 0;
         using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
         {
+
+            length = reader.ReadInt32();
+            seedPadding = reader.ReadByte();
+            seedBytes = reader.ReadBytes(length);
+            tapPosition = reader.ReadInt32();
+
             n = reader.ReadInt32();
             m = reader.ReadInt32();
 
@@ -718,7 +740,7 @@ public static class Compression
 
             length = reader.ReadInt32();
             redPadding = reader.ReadByte();
-            redbytes = reader.ReadBytes(length);
+            redBytes = reader.ReadBytes(length);
 
 
             length = reader.ReadByte();
@@ -740,7 +762,7 @@ public static class Compression
 
             length = reader.ReadInt32();
             greenPadding = reader.ReadByte();
-            greenbytes = reader.ReadBytes(length);
+            greenBytes = reader.ReadBytes(length);
 
 
             length = reader.ReadByte();
@@ -762,7 +784,7 @@ public static class Compression
 
             length = reader.ReadInt32();
             bluePadding = reader.ReadByte();
-            bluebytes = reader.ReadBytes(length);
+            blueBytes = reader.ReadBytes(length);
 
 
         }
@@ -771,8 +793,19 @@ public static class Compression
         decompressed = new RGBPixel[n, m];
 
         Root[] root = ReconstructTree();
+
         stringBuilder = new StringBuilder();
-        foreach (byte b in redbytes)
+        foreach (byte b in seedBytes)
+        {
+
+            stringBuilder.Append(ConvertToBinaryString(b));
+        }
+
+        stringBuilder.Remove(stringBuilder.Length - seedPadding, seedPadding);
+        initialaSeed = stringBuilder.ToString();
+
+        stringBuilder = new StringBuilder();
+        foreach (byte b in redBytes)
         {
 
             stringBuilder.Append(ConvertToBinaryString(b));
@@ -783,7 +816,7 @@ public static class Compression
 
         stringBuilder = new StringBuilder();
 
-        foreach (byte b in greenbytes)
+        foreach (byte b in greenBytes)
         {
             stringBuilder.Append(ConvertToBinaryString(b));
         }
@@ -793,7 +826,7 @@ public static class Compression
         rgb[1] = stringBuilder.ToString();
         stringBuilder = new StringBuilder();
 
-        foreach (byte b in bluebytes)
+        foreach (byte b in blueBytes)
         {
             stringBuilder.Append(ConvertToBinaryString(b));
         }
