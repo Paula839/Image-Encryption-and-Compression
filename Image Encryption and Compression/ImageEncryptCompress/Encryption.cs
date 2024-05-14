@@ -7,17 +7,22 @@ public class Encryption
 {
     public static string initialaSeed;
     public static int tapPosition;
-    public static StringBuilder current_seedString;
+    public static StringBuilder current_seed;
     public static int currentPosition;
     public static int currentTapPosition;
     public static int n;
+  
 
-    public static byte LFSRK(byte k = 8)
+    public static byte LFSRK(byte tap = 8)
     {
+
         byte result = 0;
-        for (int i = 0; i < k; i++)
+
+        for (int i = 0; i < tap; i++)
         {
-            int x = current_seedString[(++currentPosition) % n] ^= current_seedString[(++currentTapPosition) % n];
+
+            int x = current_seed[(++currentPosition) % n] ^= 
+                current_seed[(++currentTapPosition) % n];
             result = (byte)((result << 1) | x); //result * 2 + x
 
         }
@@ -28,19 +33,17 @@ public class Encryption
     public static string ConvertToBinary(int number)
     {
         if (number == 0)
-            return "0"; // Special case for zero
+            return "0"; 
 
-        string binary = ""; // Initialize an empty string to store the binary representation
+        string binary = ""; 
 
         while (number > 0)
         {
-            // Get the least significant bit of the number
+     
             int bit = number % 2;
 
-            // Prepend the bit to the binary string
             binary = bit + binary;
 
-            // Shift the number right by 1 bit
             number >>= 1;
         }
         return binary;
@@ -52,75 +55,61 @@ public class Encryption
         int height = image.GetLength(1);
         tapPosition = tap;
 
-        //current_seedString = new StringBuilder(initial_seed);
-
-
-        /*BONUS 1 : AlphaNumeric Password
-         *get the initial_seed and convert each character to binary and store it in current_seedString(StringBuilder)
-         *after this instead of n = initial_seed.Length use n = current_seed.Length
-         */
-
-        current_seedString = new StringBuilder();
+        current_seed = new StringBuilder();
 
         /*BONUS 1 : AlphaNumeric Password
          *get the initial_seed and convert each character to binary and store it in current_seedString(StringBuilder)
          *after this instead of n = initial_seed.Length use n = current_seed.Length
          */
 
-        //comment these three lines
         int seed_len = initial_seed.Length;
         Dictionary<char, string> alpha_password = new Dictionary<char, string>();
         for (int i = 0; i < seed_len; i++)
         {
             int current_char = 0;
-            if (char.IsLetter(initial_seed[i]) && (initial_seed[i] >= 'a' && initial_seed[i] <= 'z')) //a
+            if (initial_seed[i] >= 'a' && initial_seed[i] <= 'z') 
             {
                 current_char = initial_seed[i] - 'a' + 36;
                 alpha_password[initial_seed[i]] = ConvertToBinary(current_char);
-                current_seedString.Append(alpha_password[initial_seed[i]]);
+                current_seed.Append(alpha_password[initial_seed[i]]);
             }
 
-            else if ((initial_seed[i] >= 'A' && initial_seed[i] <= 'Z') && char.IsLetter(initial_seed[i]))
+            else if (initial_seed[i] >= 'A' && initial_seed[i] <= 'Z')
             {
                 current_char = initial_seed[i] - 'A' + 10;
                 alpha_password[initial_seed[i]] = ConvertToBinary(current_char);
-                current_seedString.Append(alpha_password[initial_seed[i]]);
+                current_seed.Append(alpha_password[initial_seed[i]]);
 
             }
             else
             {
                 current_char = initial_seed[i] - '0';
                 alpha_password[initial_seed[i]] = ConvertToBinary(current_char);
-                current_seedString.Append(alpha_password[initial_seed[i]]);
+                current_seed.Append(alpha_password[initial_seed[i]]);
             }
-
         }
-        initialaSeed = current_seedString.ToString();
-        n = current_seedString.Length;
-        for (int i = 0; i < n; i++) current_seedString[i] -= '0';
-        currentPosition = 0 - 1;
-        currentTapPosition = n - tap - 1 - 1;
+
+        initialaSeed = current_seed.ToString();
+        n = current_seed.Length;
+        for (int i = 0; i < n; i++) current_seed[i] -= '0';
+        currentPosition = 0 - 1; //p1
+        currentTapPosition = n - tap - 1 - 1; // p2
         RGBPixel[,] pixlaya = (RGBPixel[,])image.Clone(); 
         byte redcolor = 0;
         byte greencolor = 0;
         byte bluecolor = 0;
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < width; i++) //n
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < height; j++) //m
             {
 
-                //RED
                 redcolor = LFSRK();
                 greencolor = LFSRK();
                 bluecolor = LFSRK();
 
-                byte forredByte = redcolor;
-                byte forgreenByte = greencolor;
-                byte forblueByte = bluecolor;
-
-                pixlaya[i, j].red = (byte)(pixlaya[i, j].red ^ forredByte);
-                pixlaya[i, j].green = (byte)(pixlaya[i, j].green ^ forgreenByte);
-                pixlaya[i, j].blue = (byte)(pixlaya[i, j].blue ^ forblueByte);
+                pixlaya[i, j].red = (byte)(pixlaya[i, j].red ^ redcolor);
+                pixlaya[i, j].green = (byte)(pixlaya[i, j].green ^ greencolor);
+                pixlaya[i, j].blue = (byte)(pixlaya[i, j].blue ^ bluecolor);
             }
         }
         return pixlaya;
@@ -132,7 +121,7 @@ public class Encryption
     static RGBPixel[,] testingImage;
     static int num;
 
-    static double bestSum;
+    static double mostDeviated;
     static string bestSeed;
     static byte bestTap;
     static RGBPixel[,] bestImage;
@@ -152,10 +141,37 @@ public class Encryption
         randomSeed = new StringBuilder();
         testingImage = image;
         num = nn;
-        bestSum = double.MinValue;
+        mostDeviated = 0;
         found = false;
-        Breaking(image, 0);
+        Breaking(image);
         return bestImage;
+    }
+
+    public static void Breaking(RGBPixel[,] image, int idx = 0)
+    {
+        if (idx == num)
+        {
+            for (byte tap = 0; tap < num; tap++)
+            {
+                testingImage = (RGBPixel[,])image.Clone();
+                RGBPixel[,] elImage = Encrypt(testingImage, randomSeed.ToString(), tap);
+                double deviation = CalculateImageDeviation(elImage);
+                if (deviation > mostDeviated)
+                {
+                    mostDeviated = deviation;
+                    bestSeed = randomSeed.ToString();
+                    bestTap = tap;
+                    bestImage = elImage;
+                }
+            }
+            return;
+        }
+        randomSeed.Append('0'); //leave 
+        Breaking(image, idx + 1);
+        randomSeed.Remove(randomSeed.Length - 1, 1);
+        randomSeed.Append('1'); // take
+        Breaking(image, idx + 1);
+        randomSeed.Remove(randomSeed.Length - 1, 1);
     }
 
 
@@ -167,17 +183,16 @@ public class Encryption
         return deviation;
     }
 
-
     public static double CalculateImageDeviation(RGBPixel[,] pixels)
     {
         int count = 0;
         double totalDeviation = 0;
 
-        for (int y = 0; y < pixels.GetLength(0); y++)
+        for (int x = 0; x < pixels.GetLength(0); x++)
         {
-            for (int x = 0; x < pixels.GetLength(1); x++)
+            for (int y = 0; y < pixels.GetLength(1); y++)
             {
-                double deviation = CalculateColorDeviation(pixels[y, x]);
+                double deviation = CalculateColorDeviation(pixels[x, y]);
                 totalDeviation += deviation;
                 count++;
             }
@@ -186,273 +201,5 @@ public class Encryption
         double averageDeviation = totalDeviation / count;
         return Math.Sqrt(averageDeviation);
     }
-    public static void Breaking(RGBPixel[,] image, int pos)
-    {
-
-        if(pos == num)
-        {
-            for (byte i = 0; i < num; i++)
-            {
-                testingImage = (RGBPixel[,])image.Clone();
-                RGBPixel[,] elImage = Encrypt(testingImage, randomSeed.ToString(), i);
-                double deviation = CalculateImageDeviation(elImage);
-                if (deviation > bestSum)
-                {
-                    bestSum = deviation;
-                    bestSeed = randomSeed.ToString();
-                    bestTap = i;
-                    bestImage = elImage;
-                }
-            }
-            return;
-        }
-        randomSeed.Append('0');
-        Breaking(image, pos + 1);
-        randomSeed.Remove(randomSeed.Length - 1, 1);
-        randomSeed.Append('1');
-        Breaking(image, pos + 1);
-        randomSeed.Remove(randomSeed.Length - 1, 1);
-
-    }
-
-
-
-
-
-
-
-    ////Other Solutions
-    //public static UInt16 current_seedByte = 0;
-    //public static UInt32 current_seedInt = 0;
-    //public static UInt64 current_seedLong = 0;
-    //public static string current_password;
-    //public static QueueTapPointer queue_seed;
-
-    //public static byte LFSRQueue(QueueTapPointer initial_seed) 
-    //{
-    //    return initial_seed.Xor();
-    //}
-
-    //public static byte LFSKQueue(QueueTapPointer initial_seed, int k)
-    //{
-    //    byte result = 0;
-    //    for (int i = 0; i < k; i++)
-    //    {
-    //        byte x = LFSRQueue(initial_seed);
-    //        result = (byte)((result << 1) | x);
-
-    //    }
-
-    //    return result;
-    //}
-
-
-    //public static byte LFSRByte(byte tapnum, UInt16 initial_seed, byte n)
-    //{
-
-    //    //get last digit of the initial seed 
-    //    byte last = (byte)(((initial_seed & (1 << (n - 1)))) >> (n - 1));
-
-    //    //get tap digit of the initial seed 
-    //    byte tap = (byte)(((initial_seed & (1 << (tapnum)))) >> (tapnum));
-
-    //    //shift it
-    //    byte shifted = (byte)(initial_seed << 1);
-
-    //    //xor last with tap
-    //    byte xorResult = (byte)(last ^ tap);
-
-
-    //    byte removelast = (byte)(last << n);
-
-    //    byte res_seed = (byte)(shifted + xorResult - removelast);
-
-    //    current_seedByte = res_seed;
-    //    //return res_seed;
-    //    return xorResult;
-    //}
-
-    //public static byte LFSRkByte(byte tapnum, UInt16 initial_seed, byte k, byte n)
-    //{
-    //    byte result = 0;
-    //    for (int i = 0; i < k; i++)
-    //    {
-    //        byte x = LFSRByte(tapnum, current_seedByte, n);
-    //        result = (byte)((result << 1) | x);
-
-    //    }
-
-    //    return result;
-    //}
-
-
-    //public static byte LFSRInt(byte tapnum, UInt32 initial_seed, byte n)
-    //{
-
-    //    //get last digit of the initial seed 
-    //    byte last = (byte)(((initial_seed & (1 << (n - 1)))) >> (n - 1));
-
-    //    //get tap digit of the initial seed 
-    //    byte tap = (byte)(((initial_seed & (1 << (tapnum)))) >> (tapnum));
-
-    //    //shift it
-    //    UInt32 shifted = initial_seed << 1;
-
-    //    //xor last with tap
-    //    byte xorResult = (byte)(last ^ tap);
-
-
-    //    UInt32 removelast = (UInt32)(last << n);
-
-    //    UInt32 res_seed = shifted + xorResult - removelast;
-
-    //    current_seedInt = res_seed;
-    //    //return res_seed;
-    //    return xorResult;
-    //}
-
-    //public static byte LFSRkInt(byte tapnum, UInt32 initial_seed, byte k, byte n)
-    //{
-    //    byte result = 0;
-    //    for (int i = 0; i < k; i++)
-    //    {
-    //        int x = LFSRInt(tapnum, current_seedInt, n);
-    //        result = (byte)((result << 1) | x);
-
-    //    }
-
-    //    return result;
-    //}
-
-
-    //public static byte LFSRLong(byte tapnum, UInt64 initial_seed, byte n)
-    //{
-
-    //    //get last digit of the initial seed 
-    //    byte last = (byte)(((initial_seed & ((UInt64)(1 << (n - 1))))) >> (n - 1));
-
-    //    //get tap digit of the initial seed 
-    //    byte tap = (byte)(((initial_seed & ((UInt64)((UInt64)(1 << (tapnum)))))) >> (tapnum));
-
-    //    //shift it
-    //    UInt64 shifted = (initial_seed << 1);
-
-    //    //xor last with tap
-    //    byte xorResult = (byte)(last ^ tap);
-
-
-    //    UInt64 removelast = (UInt64)(last << n);
-    //    UInt64 res_seed = shifted + xorResult - removelast;
-
-    //    current_seedLong = res_seed;
-    //    //return res_seed;
-    //    return xorResult;
-    //}
-
-    //public static byte LFSRkLong(byte tapnum, UInt64 initial_seed, byte k, byte n)
-    //{
-    //    byte result = 0;
-    //    for (int i = 0; i < k; i++)
-    //    {
-    //        int x = LFSRLong(tapnum, current_seedLong, n);
-    //        result = (byte)((result << 1) | x);
-
-    //    }
-
-    //    return result;
-    //}
-
-    //public static RGBPixel[,] Encode(RGBPixel[,] image, string initial_seed, byte tap)
-    //{
-    //    int width = image.GetLength(0);
-    //    int height = image.GetLength(1);
-
-    //    //string initial_se = "01101000010";
-    //    byte n = (byte)initial_seed.Length;
-    //    //Console.WriteLine(n);
-    //    if (n < 16)
-    //    {
-    //        current_seedByte = Convert.ToUInt16(initial_seed, 2);
-    //    }
-
-    //    else if (n < 32)
-    //    {
-    //        current_seedInt = Convert.ToUInt32(initial_seed, 2);
-
-    //    }
-
-    //    else if(n < 64)
-    //    {
-    //        current_seedLong = Convert.ToUInt64(initial_seed, 2);
-    //    }
-
-    //    else
-    //    {
-    //        queue_seed = new QueueTapPointer(n - tap - 1);
-    //        for (int i = 0; i < n; i++)
-    //        {
-    //            queue_seed.Enqueue(initial_seed[i] - '0');
-    //        }
-
-    //    }
-        
-    //    //Console.WriteLine(seedInt);
-    //    byte redcolor = 0;
-    //    byte greencolor = 0;
-    //    byte bluecolor = 0;
-    //    for (int i = 0; i < width; i++)
-    //    {
-    //        for (int j = 0; j < height; j++)
-    //        {
-
-    //            //RED
-
-    //            if(n < 16)
-    //            {
-    //                redcolor = LFSRkByte(tap, current_seedByte, 8, n);
-    //                greencolor = LFSRkByte(tap, current_seedByte, 8, n);
-    //                bluecolor = LFSRkByte(tap, current_seedByte, 8, n);
-    //            }
-
-    //            else if (n < 32)
-    //            {
-    //                 redcolor = LFSRkInt(tap, current_seedInt, 8, n);
-    //                 greencolor = LFSRkInt(tap, current_seedInt, 8, n);
-    //                 bluecolor = LFSRkInt(tap, current_seedInt, 8, n);
-    //            }
-
-    //            else if(n < 64)
-    //            {
-    //                redcolor = LFSRkLong(tap, current_seedLong, 8, n);
-    //                greencolor = LFSRkLong(tap, current_seedLong, 8, n);
-    //                bluecolor = LFSRkLong(tap, current_seedLong, 8, n);
-    //            }
-
-    //            else
-    //            {
-    //                redcolor = LFSKQueue(queue_seed, 8);
-    //                greencolor = LFSKQueue(queue_seed, 8);
-    //                bluecolor = LFSKQueue(queue_seed, 8);
-    //            }
-    //            //int forred = Convert.ToInt32(redcolor, 2);
-    //            //GREEN
-    //            //int forgreen = Convert.ToInt32(greencolor, 2);
-
-    //            //BLUE
-    //            //int forblue = Convert.ToInt32(bluecolor, 2);
-    //            byte forredByte = redcolor;
-    //            byte forgreenByte = greencolor;
-    //            byte forblueByte = bluecolor;
-
-    //            image[i, j].red = (byte)(image[i, j].red ^ forredByte);
-    //            image[i, j].green = (byte)(image[i, j].green ^ forgreenByte);
-    //            image[i, j].blue = (byte)(image[i, j].blue ^ forblueByte);
-    //        }
-    //    }
-    //    return image;
-    //}
-
-
-
 
 }

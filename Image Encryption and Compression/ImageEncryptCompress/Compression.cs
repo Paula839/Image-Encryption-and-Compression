@@ -1,15 +1,9 @@
 ﻿using ImageEncryptCompress;
-using Lucene.Net.Index;
-using Lucene.Net.Search;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.AccessControl;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static Lucene.Net.Store.Lock;
+
 
 
 public class Root
@@ -234,57 +228,54 @@ public static class Compression
     static Dictionary<byte, string> GreenHuffmanCode;
     static Dictionary<byte, string> BlueHuffmanCode;
     static StringBuilder[] code;
-    public static void CompressRed(Root root)
+    static void CompressRed(Root root)
     {
         if (root == null)
         {
             return;
         }
 
-        //false -> 0 / true -> 1
         code[0].Append('0');
-        CompressRed(root.left); //0 string + 0, 0
+        CompressRed(root.left); 
         code[0].Remove(code[0].Length - 1, 1);
         code[0].Append('1');
-        CompressRed(root.right); //1
+        CompressRed(root.right); 
         code[0].Remove(code[0].Length - 1, 1);
 
         if (root.left == null && root.right == null)
             RedHuffmanCode[root.color] = code[0].ToString();
     }
 
-    public static void CompressGreen(Root root)
+    static void CompressGreen(Root root)
     {
         if (root == null)
         {
             return;
         }
 
-        //false -> 0 / true -> 1
         code[1].Append('0');
-        CompressGreen(root.left); //0 string + 0, 0
+        CompressGreen(root.left); 
         code[1].Remove(code[1].Length - 1, 1);
         code[1].Append('1');
-        CompressGreen(root.right); //1
+        CompressGreen(root.right); 
         code[1].Remove(code[1].Length - 1, 1);
 
         if (root.left == null && root.right == null)
             GreenHuffmanCode[root.color] = code[1].ToString();
     }
 
-    public static void CompressBlue(Root root)
+    static void CompressBlue(Root root)
     {
         if (root == null)
         {
             return;
         }
 
-        //false -> 0 / true -> 1
         code[2].Append('0');
-        CompressBlue(root.left); //0 string + 0, 0
+        CompressBlue(root.left); 
         code[2].Remove(code[2].Length - 1, 1);
         code[2].Append('1');
-        CompressBlue(root.right); //1
+        CompressBlue(root.right); 
         code[2].Remove(code[2].Length - 1, 1);
 
         if (root.left == null && root.right == null)
@@ -404,16 +395,16 @@ public static class Compression
 
     }
 
-    private static StringBuilder[] CompressFile(RGBPixel[,] image)
+    static StringBuilder[] CompressFile(RGBPixel[,] image)
     {
         StringBuilder[] Scompressed = new StringBuilder[3];
         Scompressed[0] = new StringBuilder();
         Scompressed[1] = new StringBuilder();
         Scompressed[2] = new StringBuilder();
-
-        CompressRed(HuffmanTree(image)[0]);
-        CompressGreen(HuffmanTree(image)[1]);
-        CompressBlue(HuffmanTree(image)[2]);
+        Root[] roots = HuffmanTree(image);
+        CompressRed(roots[0]);
+        CompressGreen(roots[1]);
+        CompressBlue(roots[2]);
 
         foreach (RGBPixel pixel in image)
         {
@@ -436,41 +427,9 @@ public static class Compression
         return Scompressed;
     }
 
+    static Root[] ReconstructTree()
 
-    public static List<byte> RedEncodeTreeToBytes(Dictionary<byte, string> huffman)
-    {
-        List<byte> storingBytes = new List<byte>();
-        foreach (KeyValuePair<byte, string> h in huffman)
-        {
-            storingBytes.Add(Convert.ToByte(h.Value.PadLeft(8, '0'), 2));
-        }
-
-        return storingBytes;
-    }
-    public static List<byte> GreenEncodeTreeToBytes(Dictionary<byte, string> huffman)
-    {
-        List<byte> storingBytes = new List<byte>();
-        foreach (KeyValuePair<byte, string> h in huffman)
-        {
-            storingBytes.Add(Convert.ToByte(h.Value.PadLeft(8, '0'), 2));
-        }
-
-        return storingBytes;
-    }
-    public static List<byte> BlueEncodeTreeToBytes(Dictionary<byte, string> huffman)
-    {
-        List<byte> storingBytes = new List<byte>();
-        foreach (KeyValuePair<byte, string> h in huffman)
-        {
-            storingBytes.Add(Convert.ToByte(h.Value.PadLeft(8, '0'), 2));
-        }
-
-        return storingBytes;
-    }
-
-    public static Root[] ReconstructTree()
-
-    {//0101011000110010
+    { 
         Root[] root = new Root[3];
         root[0] = new Root();
         foreach (KeyValuePair<byte, string> kvp in RedHuffmanCode)
@@ -560,7 +519,7 @@ public static class Compression
         return root;
     }
 
-    private static string ConvertToBinaryString(byte bytes)
+    static string ConvertToBinaryString(byte bytes)
     {
         StringBuilder binaryString = new StringBuilder();
 
@@ -568,12 +527,11 @@ public static class Compression
         return binaryString.ToString();
     }
 
-    private static string ConvertToBinaryStringBytes(byte[] bytes)
+    static string ConvertToBinaryStringBytes(byte[] bytes)
     {
         StringBuilder binaryString = new StringBuilder();
         foreach (byte b in bytes)
         {
-            // Convert byte to binary string representation with leading zeros
             binaryString.Append(Convert.ToString(b, 2).PadLeft(8, '0'));
         }
         return binaryString.ToString();
@@ -608,11 +566,11 @@ public static class Compression
         RedHuffmanCode = new Dictionary<byte, string>();
         GreenHuffmanCode = new Dictionary<byte, string>();
         BlueHuffmanCode = new Dictionary<byte, string>();
-        Root[] root = HuffmanTree(image);
+        Root[] root = HuffmanTree(image); //N*M  + CLOGC
 
         code = new StringBuilder[3];
         for (int i = 0; i < 3; i++) code[i] = new StringBuilder();
-        s = CompressFile(image);
+        s = CompressFile(image); // C * N * M
         StringBuilder stringBuilder;
 
         stringBuilder = new StringBuilder(Encryption.initialaSeed);
@@ -634,12 +592,14 @@ public static class Compression
         string filePath = "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\comp.bin";
         using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
         {
-
-            writer.Write(seedBytes.Length);
-            writer.Write(seedPadding);
-            writer.Write(seedBytes);
-            writer.Write(Encryption.tapPosition);
-
+            writer.Write(MainForm.encrypted);
+            if (MainForm.encrypted == 1)
+            {
+                writer.Write(seedBytes.Length);
+                writer.Write(seedPadding);
+                writer.Write(seedBytes);
+                writer.Write(Encryption.tapPosition);
+            }
             writer.Write(image.GetLength(0));
             writer.Write(image.GetLength(1));
 
@@ -651,8 +611,7 @@ public static class Compression
                 byte[] x = ConvertToBytes(stringBuilder);
                 writer.Write((byte)((8 - padding) % 8));
                 writer.Write(x.Length);
-                for (int i = 0; i < x.Length; i++)
-                    writer.Write(x[i]);
+                writer.Write(x);
             }
 
             writer.Write(redBytes.Length);
@@ -706,17 +665,20 @@ public static class Compression
 
         string[] rgb = new string[3];
         int length = 0;
-        byte[] seedBytes, redBytes, greenBytes, blueBytes;
+        byte[] seedBytes = null, redBytes, greenBytes, blueBytes;
         StringBuilder stringBuilder = new StringBuilder();
         byte seedPadding = 0, redPadding = 0, greenPadding = 0, bluePadding = 0;
+        byte encrypted;
         using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
         {
-
-            length = reader.ReadInt32();
-            seedPadding = reader.ReadByte();
-            seedBytes = reader.ReadBytes(length);
-            tapPosition = reader.ReadInt32();
-
+            encrypted = reader.ReadByte();
+            if (encrypted == 1)
+            {
+                length = reader.ReadInt32();
+                seedPadding = reader.ReadByte();
+                seedBytes = reader.ReadBytes(length);
+                tapPosition = reader.ReadInt32();
+            }
             n = reader.ReadInt32();
             m = reader.ReadInt32();
 
@@ -795,10 +757,13 @@ public static class Compression
         Root[] root = ReconstructTree();
 
         stringBuilder = new StringBuilder();
-        foreach (byte b in seedBytes)
+        if (encrypted == 1)
         {
+            foreach (byte b in seedBytes)
+            {
 
-            stringBuilder.Append(ConvertToBinaryString(b));
+                stringBuilder.Append(ConvertToBinaryString(b));
+            }
         }
 
         stringBuilder.Remove(stringBuilder.Length - seedPadding, seedPadding);

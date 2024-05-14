@@ -22,6 +22,7 @@ namespace ImageEncryptCompress
         RGBPixel[,] SmoothedImageMatrix;
 
         string filePath;
+        public static byte encrypted;
         private void btnOpen_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -49,7 +50,7 @@ namespace ImageEncryptCompress
 
         private void btnGaussSmooth_Click(object sender, EventArgs e)
         {
-
+            encrypted = 1;
             double sigma = double.Parse(txtGaussSigma.Text);
             int maskSize = (int)nudMaskSize.Value;
             string seed = "";
@@ -64,7 +65,8 @@ namespace ImageEncryptCompress
             }
 
             SmoothedImageMatrix = Encryption.Encrypt(ImageMatrix, seed, tap);
-            ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
+            ImageOperations.DisplayImage(SmoothedImageMatrix, pictureBox2);
+
         }
 
         private void txtWidth_TextChanged(object sender, EventArgs e)
@@ -85,7 +87,6 @@ namespace ImageEncryptCompress
                 
             }
             SmoothedImageMatrix = Encryption.BreakPassword(ImageMatrix, size);
-            SmoothedImageMatrix = ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma);
             ImageOperations.DisplayImage(SmoothedImageMatrix, pictureBox2);
         }
 
@@ -101,9 +102,22 @@ namespace ImageEncryptCompress
 
         private void button2_Click(object sender, EventArgs e)
         {
+            encrypted = 0;
             double sigma = double.Parse(txtGaussSigma.Text);
             int maskSize = (int)nudMaskSize.Value;
             Compression.save(ImageMatrix);
+
+            string filePath = "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\comp.bin";
+            double fileSizeInBytes = filePath.Length / 1024;
+            Console.WriteLine($"File size: {fileSizeInBytes} KB");
+
+            double binarySize = filePath.Length;
+            double originalSize = ImageMatrix.GetLength(0) * ImageMatrix.GetLength(1) * 8;
+            double compressionRatio = (binarySize / originalSize) * 100;
+
+            Console.WriteLine("Original size: " + originalSize + " bits");
+            Console.WriteLine("binary size: " + binarySize + " bits");
+            Console.WriteLine("Compression ratio with encryption: " + compressionRatio + "%");
         }
 
         private void label9_Click(object sender, EventArgs e)
@@ -134,6 +148,7 @@ namespace ImageEncryptCompress
         private void button5_Click_1(object sender, EventArgs e)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
+            encrypted = 1;
             double sigma = double.Parse(txtGaussSigma.Text);
             int maskSize = (int)nudMaskSize.Value;
             string seed = "";
@@ -149,8 +164,8 @@ namespace ImageEncryptCompress
             }
 
             SmoothedImageMatrix = Encryption.Encrypt(ImageMatrix, seed, tap);
-            ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
             Compression.save(SmoothedImageMatrix);
+            ImageOperations.DisplayImage(SmoothedImageMatrix, pictureBox2);
             stopwatch.Stop();
 
             Console.WriteLine("Encryption and Compression Time");
@@ -162,8 +177,16 @@ namespace ImageEncryptCompress
             string filePath = "D:\\Algorithm\\Project\\RELEASE\\[1] Image Encryption and Compression\\comp.bin";
             FileInfo fileInfo = new FileInfo(filePath);
 
-            long fileSizeInBytes = fileInfo.Length / 1024;
+            double fileSizeInBytes = fileInfo.Length / 1024.0;
             Console.WriteLine($"File size: {fileSizeInBytes} KB");
+
+            double binarySize = fileInfo.Length;
+            double originalSize = ImageMatrix.GetLength(0) * ImageMatrix.GetLength(1) * 8;
+            double compressionRatio = (binarySize / originalSize) * 100;
+
+            Console.WriteLine("Original size: " + originalSize + " bits");
+            Console.WriteLine("binary size: " + binarySize + " bits");
+            Console.WriteLine("Compression ratio with encryption: " + compressionRatio + "%");
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -193,8 +216,8 @@ namespace ImageEncryptCompress
 
                 SmoothedImageMatrix = Encryption.Encrypt(ImageMatrix, seed, (byte)tap);
 
-                ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(ImageMatrix, maskSize, sigma), pictureBox1);
-                ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
+                ImageOperations.DisplayImage(ImageMatrix, pictureBox1);
+                ImageOperations.DisplayImage(SmoothedImageMatrix, pictureBox2);
 
             }
 
@@ -241,7 +264,24 @@ namespace ImageEncryptCompress
             }
 
             SmoothedImageMatrix = Encryption.Encrypt(SmoothedImageMatrix, seed, tap);
-            ImageOperations.DisplayImage(ImageOperations.GaussianFilter1D(SmoothedImageMatrix, maskSize, sigma), pictureBox2);
+            ImageOperations.DisplayImage(SmoothedImageMatrix, pictureBox2);
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            //string filebath = @"C:\Users\LENOVO\source\repos\Image-Encryption-and-Compression\Image Encryption and Compression\ImageEncryptCompress\image_inc.bmp";
+            //pictureBox2.BackgroundImage.Save(filebath);
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Filter = "Bitmap Image|*.bmp";
+            saveFileDialog1.Title = "JPEG Image|*.jpg|PNG Image|*.png|Bitmap Image|*.bmp";
+            saveFileDialog1.ShowDialog();
+
+            // If the file name is not empty, save the image
+            if (saveFileDialog1.FileName != "")
+            {
+                // Save the image to the specified file path
+                pictureBox2.Image.Save(saveFileDialog1.FileName);
+            }
         }
     }
 }
